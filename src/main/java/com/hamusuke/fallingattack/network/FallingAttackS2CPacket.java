@@ -1,10 +1,8 @@
 package com.hamusuke.fallingattack.network;
 
-import com.hamusuke.fallingattack.invoker.IPlayerEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,22 +29,15 @@ public class FallingAttackS2CPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         AtomicBoolean atomicBoolean = new AtomicBoolean();
-        ctx.get().enqueueWork(() -> {
-            Entity entity = Minecraft.getInstance().player.clientLevel.getEntity(this.playerEntityId);
-
-            if (entity instanceof AbstractClientPlayerEntity) {
-                AbstractClientPlayerEntity abstractClientPlayerEntity = (AbstractClientPlayerEntity) entity;
-                IPlayerEntity invoker = (IPlayerEntity) abstractClientPlayerEntity;
-
-                if (this.start) {
-                    invoker.startFallingAttack();
-                } else {
-                    invoker.stopFallingAttack();
-                }
-
-                atomicBoolean.set(true);
-            }
-        });
+        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> atomicBoolean.set(ClientOnlyPacketHandler.handle(this))));
         ctx.get().setPacketHandled(atomicBoolean.get());
+    }
+
+    public int getPlayerEntityId() {
+        return this.playerEntityId;
+    }
+
+    public boolean isStart() {
+        return this.start;
     }
 }

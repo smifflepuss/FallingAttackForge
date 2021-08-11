@@ -23,7 +23,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntityMixin {
 
     public void sendFallingAttackPacket(boolean start) {
         this.server.getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
-            NetworkManager.sendToClient(new FallingAttackS2CPacket(serverPlayerEntity.getId(), start), serverPlayerEntity);
+            NetworkManager.sendToClient(new FallingAttackS2CPacket(this.getId(), start), serverPlayerEntity);
         });
     }
 }
