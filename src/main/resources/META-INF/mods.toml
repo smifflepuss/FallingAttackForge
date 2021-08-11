@@ -23,7 +23,7 @@ version="1.16.5-1.0.0" #mandatory
  # A display name for the mod
 displayName="Falling Attack" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
-#updateJSONURL="https://change.me.example.invalid/updates.json" #optional
+updateJSONURL="https://raw.githubusercontent.com/hamusuke0323/FallingAttackForge/update/update.json" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
 displayURL="https://www.curseforge.com/minecraft/mc-mods/falling-attack-forge" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
