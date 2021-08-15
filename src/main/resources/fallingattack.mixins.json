@@ -8,6 +8,7 @@
     "ServerPlayerEntityMixin"
   ],
   "client": [
+    "client.MinecraftMixin",
     "client.ClientPlayerEntityMixin",
     "client.PlayerModelMixin",
     "client.HeldItemLayerMixin",

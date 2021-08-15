@@ -1,7 +1,7 @@
 package com.hamusuke.fallingattack.mixin.client;
 
 import com.hamusuke.fallingattack.mixin.PlayerEntityMixin;
-import com.hamusuke.fallingattack.network.FallingAttackC2SPacket;
+import com.hamusuke.fallingattack.network.c2s.FallingAttackC2SPacket;
 import com.hamusuke.fallingattack.network.NetworkManager;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.EntityType;

@@ -19,6 +19,8 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -55,12 +57,21 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
     @Final
     public PlayerAbilities abilities;
 
-    private boolean fallingAttack;
-    private int fallingAttackProgress;
-    private float storeYaw = Float.NaN;
+    protected boolean fallingAttack;
+    protected float yPosWhenStartFallingAttack;
+    protected int fallingAttackProgress;
+    protected int fallingAttackCooldown;
+    protected float storeYaw = Float.NaN;
 
     protected PlayerEntityMixin(EntityType<? extends LivingEntity> p_i48577_1_, World p_i48577_2_) {
         super(p_i48577_1_, p_i48577_2_);
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    void tickV(CallbackInfo ci) {
+        if (!this.isUsingFallingAttack() && this.fallingAttackCooldown > 0) {
+            this.fallingAttackCooldown--;
+        }
     }
 
     @Inject(method = "aiStep", at = @At("HEAD"))
@@ -73,6 +84,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                     this.setDeltaMovement(Vector3d.ZERO);
                 }
 
+                if (this.fallingAttackProgress == FIRST_FALLING_ATTACK_PROGRESS_TICKS - 1) {
+                    this.yPosWhenStartFallingAttack = (float) this.getY();
+                }
+
                 this.fallingAttackProgress++;
             } else if (this.fallingAttackProgress == FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
                 if (this.isInWater() || this.isInLava() || 0 > this.blockPosition().getY()) {
@@ -81,8 +96,22 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                 } else if (this.onGround) {
                     this.fallingAttackProgress++;
                     if (EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, this.getMainHandItem()) > 0) {
-                        AxisAlignedBB axisAlignedBB = this.getBoundingBox().inflate(3.0D, 2.0D, 3.0D);
-                        this.level.getEntitiesOfClass(LivingEntity.class, axisAlignedBB, livingEntity -> !livingEntity.isSpectator() && livingEntity != this).forEach(this::fallingAttack);
+                        AxisAlignedBB axisAlignedBB = this.getBoundingBox().inflate(3.0D, 0.0D, 3.0D);
+                        Vector3d vector3d = this.position();
+
+                        this.level.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY - 1.0D, axisAlignedBB.maxZ), livingEntity -> {
+                            boolean flag = !livingEntity.isSpectator() && livingEntity != this;
+
+                            for (int i = 0; i < 2 && flag; i++) {
+                                Vector3d vector3d1 = new Vector3d(livingEntity.getX(), livingEntity.getY(0.5D * (double) i), livingEntity.getZ());
+                                RayTraceResult raytraceresult = this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this));
+                                if (raytraceresult.getType() == RayTraceResult.Type.MISS) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        }).forEach(this::fallingAttack);
                     }
                 } else {
                     this.setDeltaMovement(0.0D, -3.0D, 0.0D);
@@ -97,16 +126,21 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
     protected int calculateFallDamage(float p_225508_1_, float p_225508_2_) {
         int damage = super.calculateFallDamage(p_225508_1_, p_225508_2_);
-
-        if (this.isUsingFallingAttack()) {
-            return (int) (damage - EnchantmentHelper.getEnchantmentLevel(FallingAttack.FALLING_ATTACK, this) * p_225508_2_);
-        }
-
-        return damage;
+        int level = EnchantmentHelper.getEnchantmentLevel(FallingAttack.FALLING_ATTACK, this);
+        return this.isUsingFallingAttack() && level > 0 ? (int) (damage * (0.5F / level)) : damage;
     }
 
-    private float computeFallingAttackDamage(int fallingAttackEnchantmentLevel) {
-        return this.fallDistance * 1.5F * fallingAttackEnchantmentLevel;
+    protected float computeFallingAttackDistance() {
+        return MathHelper.clamp(this.yPosWhenStartFallingAttack - (float) this.getY(), 0.0F, Float.MAX_VALUE);
+    }
+
+    protected float computeFallingAttackDamage(float distanceToTarget, int fallingAttackEnchantmentLevel) {
+        float damage = (this.computeFallingAttackDistance() - distanceToTarget) * 0.1F * fallingAttackEnchantmentLevel;
+        return MathHelper.clamp(damage, 0.0F, Float.MAX_VALUE);
+    }
+
+    protected float computeKnockbackStrength(float distanceToTarget, int fallingAttackEnchantmentLevel) {
+        return MathHelper.clamp((this.computeFallingAttackDistance() - distanceToTarget) * 0.025F * fallingAttackEnchantmentLevel, 0.0F, Float.MAX_VALUE);
     }
 
     public void fallingAttack(Entity target) {
@@ -122,8 +156,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
                 this.resetAttackStrengthTicker();
                 if (damageAmount > 0.0F || attackDamage > 0.0F) {
+                    float distanceToTarget = this.distanceTo(target);
                     int fallingAttackLevel = EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, this.getMainHandItem());
-                    attackDamage += this.computeFallingAttackDamage(fallingAttackLevel);
+                    attackDamage += this.computeFallingAttackDamage(distanceToTarget, fallingAttackLevel);
                     this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, this.getSoundSource(), 1.0F, 1.0F);
                     ++fallingAttackLevel;
 
@@ -149,10 +184,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                     if (tookDamage) {
                         if (fallingAttackLevel > 0) {
                             float yaw = (float) MathHelper.atan2(target.getX() - this.getX(), target.getZ() - this.getZ()) * 57.2957795F;
+                            float strength = this.computeKnockbackStrength(distanceToTarget, fallingAttackLevel);
                             if (target instanceof LivingEntity) {
-                                ((LivingEntity) target).knockback((float) fallingAttackLevel * 0.5F, -MathHelper.sin(yaw * 0.017453292F), -MathHelper.cos(yaw * 0.017453292F));
+                                ((LivingEntity) target).knockback(strength, -MathHelper.sin(yaw * 0.017453292F), -MathHelper.cos(yaw * 0.017453292F));
                             } else {
-                                target.push(-MathHelper.sin(yaw * 0.017453292F) * (float) fallingAttackLevel * 0.5F, 0.1D, MathHelper.cos(yaw * 0.017453292F) * (float) fallingAttackLevel * 0.5F);
+                                target.push(-MathHelper.sin(yaw * 0.017453292F) * strength, 0.1D, MathHelper.cos(yaw * 0.017453292F) * strength);
                             }
 
                             this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
@@ -222,7 +258,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
     public boolean checkFallingAttack() {
         AxisAlignedBB axisAlignedBB = this.getBoundingBox();
-        return this.level.noCollision(this, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.isFallFlying() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(Effects.LEVITATION) && EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, this.getMainHandItem()) > 0;
+        return this.fallingAttackCooldown == 0 && this.level.noCollision(this, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.isFallFlying() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(Effects.LEVITATION) && EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, this.getMainHandItem()) > 0;
     }
 
     public void startFallingAttack() {
@@ -232,6 +268,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
     public void stopFallingAttack() {
         this.fallingAttack = false;
         this.fallingAttackProgress = 0;
+        this.fallingAttackCooldown = 20;
+        this.yPosWhenStartFallingAttack = 0.0F;
     }
 
     public int getFallingAttackProgress() {

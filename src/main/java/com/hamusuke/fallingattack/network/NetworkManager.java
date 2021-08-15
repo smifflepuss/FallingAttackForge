@@ -1,6 +1,8 @@
 package com.hamusuke.fallingattack.network;
 
 import com.hamusuke.fallingattack.FallingAttack;
+import com.hamusuke.fallingattack.network.c2s.FallingAttackC2SPacket;
+import com.hamusuke.fallingattack.network.s2c.FallingAttackS2CPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -16,7 +18,11 @@ public class NetworkManager {
         return ID++;
     }
 
-    public static void setupNetworking() {
+    public static void initNetworking() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Networking is already initialized.");
+        }
+
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(FallingAttack.MOD_ID, "main"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
         INSTANCE.registerMessage(nextID(), FallingAttackC2SPacket.class, FallingAttackC2SPacket::write, FallingAttackC2SPacket::new, FallingAttackC2SPacket::handle);
         INSTANCE.registerMessage(nextID(), FallingAttackS2CPacket.class, FallingAttackS2CPacket::write, FallingAttackS2CPacket::new, FallingAttackS2CPacket::handle);

@@ -1,4 +1,4 @@
-package com.hamusuke.fallingattack.network;
+package com.hamusuke.fallingattack.network.c2s;
 
 import com.hamusuke.fallingattack.invoker.IPlayerEntity;
 import net.minecraft.network.PacketBuffer;
