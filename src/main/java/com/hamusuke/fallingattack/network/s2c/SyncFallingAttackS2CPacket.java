@@ -9,26 +9,34 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class FallingAttackSyncS2CPacket {
+public class SyncFallingAttackS2CPacket {
     private final int playerEntityId;
+    private final boolean fallingAttack;
+    private final float fallingAttackYPos;
     private final int progress;
     private final float fallingAttackYaw;
 
-    public FallingAttackSyncS2CPacket(PacketBuffer buffer) {
+    public SyncFallingAttackS2CPacket(PacketBuffer buffer) {
         this.playerEntityId = buffer.readVarInt();
-        this.progress = buffer.readVarInt();
+        this.fallingAttack = buffer.readBoolean();
+        this.fallingAttackYPos = buffer.readFloat();
+        this.progress = buffer.readInt();
         this.fallingAttackYaw = buffer.readFloat();
     }
 
-    public FallingAttackSyncS2CPacket(int playerEntityId, int progress, float yaw) {
+    public SyncFallingAttackS2CPacket(int playerEntityId, boolean fallingAttack, float fallingAttackYPos, int progress, float yaw) {
         this.playerEntityId = playerEntityId;
+        this.fallingAttack = fallingAttack;
+        this.fallingAttackYPos = fallingAttackYPos;
         this.progress = progress;
         this.fallingAttackYaw = yaw;
     }
 
     public void write(PacketBuffer buffer) {
         buffer.writeVarInt(this.playerEntityId);
-        buffer.writeVarInt(this.progress);
+        buffer.writeBoolean(this.fallingAttack);
+        buffer.writeFloat(this.fallingAttackYPos);
+        buffer.writeInt(this.progress);
         buffer.writeFloat(this.fallingAttackYaw);
     }
 
@@ -40,6 +48,14 @@ public class FallingAttackSyncS2CPacket {
 
     public int getPlayerEntityId() {
         return this.playerEntityId;
+    }
+
+    public boolean isUsingFallingAttack() {
+        return this.fallingAttack;
+    }
+
+    public float getFallingAttackYPos() {
+        return this.fallingAttackYPos;
     }
 
     public int getProgress() {

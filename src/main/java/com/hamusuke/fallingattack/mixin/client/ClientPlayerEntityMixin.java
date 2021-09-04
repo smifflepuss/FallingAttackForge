@@ -3,6 +3,7 @@ package com.hamusuke.fallingattack.mixin.client;
 import com.hamusuke.fallingattack.mixin.PlayerEntityMixin;
 import com.hamusuke.fallingattack.network.c2s.FallingAttackC2SPacket;
 import com.hamusuke.fallingattack.network.NetworkManager;
+import com.hamusuke.fallingattack.network.c2s.SyncFallingAttackC2SPacket;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -20,5 +21,9 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntityMixin {
 
     public void sendFallingAttackPacket(boolean start) {
         NetworkManager.sendToServer(new FallingAttackC2SPacket(start));
+    }
+
+    public void sendSynchronizeFallingAttackPacket() {
+        NetworkManager.sendToServer(new SyncFallingAttackC2SPacket());
     }
 }

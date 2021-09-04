@@ -12,7 +12,8 @@
     "client.ClientPlayerEntityMixin",
     "client.PlayerModelMixin",
     "client.HeldItemLayerMixin",
-    "client.RemoteClientPlayerEntityMixin"
+    "client.RemoteClientPlayerEntityMixin",
+    "client.ClientPlayNetHandlerMixin"
   ],
   "refmap": "fallingattack.refmap.json"
 }
