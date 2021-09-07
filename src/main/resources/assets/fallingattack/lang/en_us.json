@@ -1,3 +1,6 @@
 {
-  "enchantment.fallingattack.falling_attack": "Falling Attack"
+  "enchantment.fallingattack.falling_attack": "Falling Attack",
+  "fallingattack.key.falling.attack": "Start Falling Attack",
+  "options.fallingattack.third.person": "Third Person View",
+  "options.fallingattack.third.person.desc": "Whether the perspective changes to third person when the player starts the falling attack."
 }

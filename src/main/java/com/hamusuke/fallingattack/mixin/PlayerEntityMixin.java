@@ -284,6 +284,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
         this.fallingAttackProgress = 0;
         this.fallingAttackCooldown = 20;
         this.yPosWhenStartFallingAttack = 0.0F;
+        this.setDeltaMovement(0.0D, 0.0D, 0.0D);
     }
 
     public int getFallingAttackProgress() {
