@@ -3,8 +3,8 @@ package com.hamusuke.fallingattack.network.c2s;
 import com.hamusuke.fallingattack.invoker.IPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class FallingAttackC2SPacket {
@@ -23,7 +23,7 @@ public class FallingAttackC2SPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        AtomicBoolean atomicBoolean = new AtomicBoolean();
+        MutableBoolean mutableBoolean = new MutableBoolean();
         ctx.get().enqueueWork(() -> {
             IPlayerEntity invoker = (IPlayerEntity) ctx.get().getSender();
             if (this.start) {
@@ -36,8 +36,8 @@ public class FallingAttackC2SPacket {
                 invoker.sendFallingAttackPacket(false);
             }
 
-            atomicBoolean.set(true);
+            mutableBoolean.setTrue();
         });
-        ctx.get().setPacketHandled(atomicBoolean.get());
+        ctx.get().setPacketHandled(mutableBoolean.booleanValue());
     }
 }

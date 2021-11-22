@@ -7,11 +7,14 @@ import net.minecraft.client.gui.DialogTexts;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class ConfigScreen extends Screen {
     private final Screen parent;
 
-    public ConfigScreen(Minecraft minecraft, Screen parent) {
+    public ConfigScreen(Minecraft ignored, Screen parent) {
         super(new TranslationTextComponent("options.title"));
         this.parent = parent;
     }
@@ -24,9 +27,7 @@ public class ConfigScreen extends Screen {
             this.renderTooltip(p_onTooltip_2_, new TranslationTextComponent("options.fallingattack.third.person.desc"), p_onTooltip_3_, p_onTooltip_4_);
         }));
 
-        this.addButton(new Button((this.width / 2) - (this.width / 4), this.height - 20, this.width / 2, 20, DialogTexts.GUI_DONE, p_onPress_1_ -> {
-            this.onClose();
-        }));
+        this.addButton(new Button((this.width / 2) - (this.width / 4), this.height - 20, this.width / 2, 20, DialogTexts.GUI_DONE, p_onPress_1_ -> this.onClose()));
     }
 
     public void render(MatrixStack p_230430_1_, int p_230430_2_, int p_230430_3_, float p_230430_4_) {

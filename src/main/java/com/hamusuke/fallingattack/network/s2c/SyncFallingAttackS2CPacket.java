@@ -5,8 +5,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class SyncFallingAttackS2CPacket {
@@ -41,9 +41,9 @@ public class SyncFallingAttackS2CPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        AtomicBoolean atomicBoolean = new AtomicBoolean();
-        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> atomicBoolean.set(ClientOnlyPacketHandler.handle(this))));
-        ctx.get().setPacketHandled(atomicBoolean.get());
+        MutableBoolean mutableBoolean = new MutableBoolean();
+        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> mutableBoolean.setValue(ClientOnlyPacketHandler.handle(this))));
+        ctx.get().setPacketHandled(mutableBoolean.booleanValue());
     }
 
     public int getPlayerEntityId() {

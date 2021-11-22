@@ -1,12 +1,9 @@
 package com.hamusuke.fallingattack.mixin.client;
 
-import com.hamusuke.fallingattack.FallingAttack;
 import com.hamusuke.fallingattack.invoker.IPlayerEntity;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.spongepowered.asm.mixin.Final;
@@ -34,9 +31,8 @@ public abstract class MinecraftMixin {
         IPlayerEntity invoker = (IPlayerEntity) this.player;
 
         if (this.options.keyShift.isDown() && !invoker.isUsingFallingAttack()) {
-            this.options.keyShift.setDown(false);
-            ItemStack itemStack = this.player.getMainHandItem();
-            if (EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, itemStack) > 0 && ((IPlayerEntity) this.player).checkFallingAttack()) {
+            if (((IPlayerEntity) this.player).checkFallingAttack()) {
+                this.options.keyShift.setDown(false);
                 invoker.sendFallingAttackPacket(true);
                 ci.cancel();
             }

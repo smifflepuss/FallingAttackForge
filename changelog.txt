@@ -1,3 +1,106 @@
+Build: 1.16.5-36.2.16 - Sat Nov 20 15:45:11 GMT 2021
+	Unbekannt1998:
+		change the AdvancementProvider to make it possabible for mods to hook into it (#7488)
+		
+		* back Port changes from #8120
+
+=========
+Build: 1.16.5-36.2.15 - Sat Nov 20 15:33:16 GMT 2021
+	oriondevelopment:
+		Implements Lazy ItemStack Capabilities (#7879)
+
+=========
+Build: 1.16.5-36.2.14 - Sat Nov 20 14:52:41 GMT 2021
+	xfacthd:
+		Pass IModelData through IForgeBakedModel#getModelData() before asking the IBakedModel for the particle texture (#8107)
+
+=========
+Build: 1.16.5-36.2.13 - Sat Nov 20 14:30:21 GMT 2021
+	xfacthd:
+		[1.16.x] Fix blocks with flammable material catching fire from lava when they are marked as non-flammable (#8161)
+
+=========
+Build: 1.16.5-36.2.12 - Sat Nov 20 14:17:06 GMT 2021
+	xfacthd:
+		[1.16] Add accessor to an unmodifiable view of the fullPots map in FlowerPotBlock (#8109)
+		
+		* Add accessor to an unmodifiable view of the fullPots map in FlowerPotBlock
+		
+		* Fix non-empty pot check
+		
+		* Remove exception from getter and add test mod
+
+=========
+Build: 1.16.5-36.2.11 - Sat Nov 20 13:56:21 GMT 2021
+	championash5357:
+		Ensure that all render targets in a PostChain use the same format (#8138)
+		
+		Fixes #6995 
+
+=========
+Build: 1.16.5-36.2.10 - Sat Nov 20 13:42:51 GMT 2021
+	championash5357:
+		Make Broken Blocks Display Associated FluidState (#8129)
+		
+		Fixes #7253 for 1.16.x
+
+=========
+Build: 1.16.5-36.2.9 - Thu Nov 04 07:09:52 GMT 2021
+	gigaherz:
+		Implement GUI Stacking feature. (#6927)
+		
+		* Implement GUI Stacking feature.
+		You can now use `mc.pushGuiLayer` and `mc.popGuiLayer` to manage the layers.
+		mc.displayGuiScreen behaves such that if called with a non-null screen it replaces the entire stack, and if called with null it closes the entire stack.
+		
+		* Apply review comment fixes from 1.17 counterpart.
+		
+		* Revert unintended changes.
+		
+		* Missed these reverts.
+
+=========
+Build: 1.16.5-36.2.8 - Sun Oct 03 16:51:54 GMT 2021
+	sciwhiz12:
+		Add workaround for pairs of `'` being stripped (#8074)
+		
+		Backport of #8050
+
+	ititus:
+		Fix typo in FluidBlockWrapper (#7880)
+
+=========
+Build: 1.16.5-36.2.6 - Mon Sep 27 20:24:54 GMT 2021
+	brandon4261:
+		Backport MC-209819 (#7923)
+		
+		Backport fix for mc bug https://bugs.mojang.com/browse/MC-209819
+
+=========
+Build: 1.16.5-36.2.5 - Sun Sep 19 23:50:14 GMT 2021
+	zml:
+		[1.16.5] Bump Mixin to 0.8.4 (#8098)
+
+=========
+Build: 1.16.5-36.2.4 - Tue Aug 31 16:32:40 GMT 2021
+	djbake101:
+		[1.16.5] Backport OnDatapackSyncEvent from 1.17.1 (#7985)
+
+=========
+Build: 1.16.5-36.2.3 - Tue Aug 31 15:35:00 GMT 2021
+	sciwhiz12:
+		[1.16.x] Fix all layers of ItemLayerModel being fullbright (#8040)
+		
+		* Fix all layers of ItemLayerModel being fullbright
+		
+		Backport of #8039
+		
+		* Remove duplicate test resources
+		
+		These resources have corresponding equivalents in the generated tests
+		resources folder.
+
+=========
 Build: 1.16.5-36.2.2 - Mon Jul 26 21:37:03 GMT 2021
 	onelemonyboi:
 		Fix rounding related errors with small entity pathfinding. Closes #7730
@@ -82,10 +185,10 @@ Build: 1.16.5-36.1.51 - Sat Jul 17 02:13:02 GMT 2021
 	queekusme:
 		Changed AbstractFurnaceTileEntity's canBurn and burn functions to use IRecipe's 'assemble' instead of 'getResultItem' (#7756)
 
-	Judge40:
+	judge40:
 		[1.16.x] Remove redundant mobgriefing check in SmallFireaballEntity. (#7761)
 
-	Judge40:
+	judge40:
 		Use MobGriefingEvent for PiglinEntity when determining whether Piglins want to pick up items. (#7762)
 
 	diesieben07:
@@ -117,7 +220,7 @@ Build: 1.16.5-36.1.51 - Sat Jul 17 02:13:02 GMT 2021
 	cech12:
 		New hook to allow Trapdoors be climbable for custom ladders (#7816)
 
-	Won-Ton:
+	won-ton:
 		Add AT entries for DimensionSettings to make them easier for mods to work with (#7817)
 
 	lexmanos:
@@ -148,7 +251,7 @@ Build: 1.16.5-36.1.35 - Thu Jul 15 23:56:00 GMT 2021
 
 =========
 Build: 1.16.5-36.1.34 - Thu Jul 15 23:40:24 GMT 2021
-	Commoble:
+	commoble:
 		Fix PlayerGameModeEventTest and ForgeWorldTypeTest so they don't crash the dedicated server when running forge_test_server in forgedev (#7869)
 
 =========
@@ -489,7 +592,7 @@ Build: 1.16.5-36.0.45 - Wed Mar 03 20:50:47 GMT 2021
 
 =========
 Build: 1.16.5-36.0.44 - Wed Mar 03 05:29:04 GMT 2021
-	FireController1847:
+	firecontroller1847:
 		Add Opacity to ForgeHooksClient#renderMainMenu (#7660)
 
 =========
@@ -588,7 +691,7 @@ Build: 1.16.5-36.0.26 - Mon Feb 15 03:16:02 GMT 2021
 
 =========
 Build: 1.16.5-36.0.25 - Mon Feb 15 03:10:24 GMT 2021
-	40846040+telepathicgrunt:
+	telepathicgrunt:
 		Disable syncing of Feature and Biome registries  (#7639)
 
 =========
@@ -628,7 +731,7 @@ Build: 1.16.5-36.0.18 - Tue Feb 09 21:06:36 GMT 2021
 
 =========
 Build: 1.16.5-36.0.17 - Tue Feb 09 21:00:57 GMT 2021
-	Lachney:
+	lachney:
 		Prevent NullPointerException when adding new loot pool. (#7605)
 
 =========
@@ -721,7 +824,7 @@ Build: 1.16.4-35.1.37 - Thu Jan 14 23:58:35 GMT 2021
 
 =========
 Build: 1.16.4-35.1.36 - Thu Jan 07 20:24:49 GMT 2021
-	ian.rehwinkel:
+	rehwinkel:
 		Added IWeatherParticleRenderHandler to allow a mod to take control over weather particles and sounds. (#7522)
 
 =========
@@ -861,7 +964,7 @@ Build: 1.16.4-35.1.9 - Sat Dec 05 20:01:00 GMT 2020
 
 =========
 Build: 1.16.4-35.1.8 - Sat Dec 05 19:52:56 GMT 2020
-	20846147+unbekannt1998:
+	Unbekannt1998:
 		Fix wrong function call in BlockStateProvider::horizontalFaceBlock (#7514)
 
 =========
@@ -1217,7 +1320,7 @@ Build: 1.16.3-34.1.21 - Thu Oct 15 19:43:33 GMT 2020
 
 =========
 Build: 1.16.3-34.1.20 - Thu Oct 15 17:15:15 GMT 2020
-	Ocelot5836:
+	ocelot5836:
 		Add event for player changing game mode (#7355)
 
 =========
@@ -1418,7 +1521,7 @@ Build: 1.16.3-34.0.6 - Tue Sep 15 19:47:08 GMT 2020
 
 =========
 Build: 1.16.3-34.0.5 - Tue Sep 15 16:51:58 GMT 2020
-	Thelonedevil:
+	thelonedevil:
 		Fix json biomes not setting registry name correctly for the BiomeLoadingEvent. (#7329)
 
 =========
@@ -1450,7 +1553,7 @@ Build: 1.16.3-34.0.0 - Thu Sep 10 19:10:33 GMT 2020
 
 =========
 Build: 1.16.2-33.0.61 - Thu Sep 10 18:54:56 GMT 2020
-	RedstoneDubstep:
+	redstonedubstep:
 		Fix tile entities being replaced when not needed. (#7318)
 
 =========
@@ -2162,7 +2265,7 @@ Build: 1.16.1-32.0.39 - Wed Jul 01 18:14:25 GMT 2020
 
 =========
 Build: 1.16.1-32.0.38 - Tue Jun 30 20:19:32 GMT 2020
-	MelanX:
+	melanx:
 		Add hoe tool type (#6872)
 
 =========

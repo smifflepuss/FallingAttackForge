@@ -12,6 +12,7 @@ import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
 import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.Effects;
@@ -24,6 +25,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.spongepowered.asm.mixin.Final;
@@ -80,6 +82,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
     @Inject(method = "aiStep", at = @At("HEAD"))
     void aiStepV(CallbackInfo ci) {
         if (this.isUsingFallingAttack()) {
+            if (!this.level.isClientSide() && !(this.getMainHandItem().getItem() instanceof SwordItem)) {
+                this.stopFallingAttack();
+                this.sendFallingAttackPacket(false);
+            }
+
             if (this.fallingAttackProgress < FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
                 if (this.fallingAttackProgress == 0) {
                     this.setDeltaMovement(0.0D, 0.5D, 0.0D);
@@ -98,7 +105,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                     this.setDeltaMovement(Vector3d.ZERO);
                 } else if (this.onGround) {
                     this.fallingAttackProgress++;
-                    if (!this.level.isClientSide() && EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, this.getMainHandItem()) > 0) {
+                    if (!this.level.isClientSide()) {
                         AxisAlignedBB axisAlignedBB = this.getBoundingBox().inflate(3.0D, 0.0D, 3.0D);
                         Vector3d vector3d = this.position();
 
@@ -129,8 +136,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
     protected int calculateFallDamage(float p_225508_1_, float p_225508_2_) {
         int damage = super.calculateFallDamage(p_225508_1_, p_225508_2_);
-        int level = EnchantmentHelper.getEnchantmentLevel(FallingAttack.FALLING_ATTACK, this);
-        return this.isUsingFallingAttack() && level > 0 ? (int) (damage * (0.5F / level)) : damage;
+        return this.isUsingFallingAttack() ? (int) (damage * 0.25F) : damage;
     }
 
     protected float computeFallingAttackDistance() {
@@ -147,6 +153,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
     }
 
     public void fallingAttack(Entity target) {
+        if (!ForgeHooks.onPlayerAttackTarget((PlayerEntity) (Object) this, target)) {
+            return;
+        }
+
         if (target.isAttackable()) {
             if (!target.skipAttackInteraction(this)) {
                 float damageAmount = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -160,10 +170,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                 this.resetAttackStrengthTicker();
                 if (damageAmount > 0.0F || attackDamage > 0.0F) {
                     float distanceToTarget = this.distanceTo(target);
-                    int fallingAttackLevel = EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, this.getMainHandItem());
+                    int i = EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.SHARPNESS_OF_FALLING_ATTACK, this.getMainHandItem());
+                    int fallingAttackLevel = MathHelper.clamp(i + 1, 1, FallingAttack.SHARPNESS_OF_FALLING_ATTACK.getMaxLevel() + 1);
                     attackDamage += this.computeFallingAttackDamage(distanceToTarget, fallingAttackLevel);
                     this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, this.getSoundSource(), 1.0F, 1.0F);
-                    ++fallingAttackLevel;
 
                     boolean bl3 = !this.onClimbable() && !this.isInWater() && !this.hasEffect(Effects.BLINDNESS) && !this.isPassenger() && target instanceof LivingEntity;
                     if (bl3) {
@@ -185,18 +195,16 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                     Vector3d vec3d = target.getDeltaMovement();
                     boolean tookDamage = target.hurt(DamageSource.playerAttack((PlayerEntity) (Object) this), damageAmount);
                     if (tookDamage) {
-                        if (fallingAttackLevel > 0) {
-                            float yaw = (float) MathHelper.atan2(target.getX() - this.getX(), target.getZ() - this.getZ()) * 57.2957795F;
-                            float strength = this.computeKnockbackStrength(distanceToTarget, fallingAttackLevel);
-                            if (target instanceof LivingEntity) {
-                                ((LivingEntity) target).knockback(strength, -MathHelper.sin(yaw * 0.017453292F), -MathHelper.cos(yaw * 0.017453292F));
-                            } else {
-                                target.push(-MathHelper.sin(yaw * 0.017453292F) * strength, 0.1D, MathHelper.cos(yaw * 0.017453292F) * strength);
-                            }
-
-                            this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
-                            this.setSprinting(false);
+                        float yaw = (float) MathHelper.atan2(target.getX() - this.getX(), target.getZ() - this.getZ()) * 57.2957795F;
+                        float strength = this.computeKnockbackStrength(distanceToTarget, fallingAttackLevel);
+                        if (target instanceof LivingEntity) {
+                            ((LivingEntity) target).knockback(strength, -MathHelper.sin(yaw * 0.017453292F), -MathHelper.cos(yaw * 0.017453292F));
+                        } else {
+                            target.push(-MathHelper.sin(yaw * 0.017453292F) * strength, 0.1D, MathHelper.cos(yaw * 0.017453292F) * strength);
                         }
+
+                        this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
+                        this.setSprinting(false);
 
                         if (target instanceof ServerPlayerEntity && target.hurtMarked) {
                             ((ServerPlayerEntity) target).connection.send(new SEntityVelocityPacket(target));
@@ -261,7 +269,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
     public boolean checkFallingAttack() {
         AxisAlignedBB axisAlignedBB = this.getBoundingBox();
-        return this.fallingAttackCooldown == 0 && this.level.noCollision(this, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(Effects.LEVITATION) && EnchantmentHelper.getItemEnchantmentLevel(FallingAttack.FALLING_ATTACK, this.getMainHandItem()) > 0;
+        return this.fallingAttackCooldown == 0 && this.level.noCollision(this, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(Effects.LEVITATION) && this.getMainHandItem().getItem() instanceof SwordItem;
     }
 
     public void startFallingAttack() {
