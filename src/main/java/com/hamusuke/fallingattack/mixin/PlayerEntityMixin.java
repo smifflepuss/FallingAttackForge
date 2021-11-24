@@ -28,6 +28,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -176,8 +177,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                     this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, this.getSoundSource(), 1.0F, 1.0F);
 
                     boolean bl3 = !this.onClimbable() && !this.isInWater() && !this.hasEffect(Effects.BLINDNESS) && !this.isPassenger() && target instanceof LivingEntity;
+                    CriticalHitEvent hitResult = ForgeHooks.getCriticalHit((PlayerEntity) (Object)this, target, bl3, bl3 ? 1.5F : 1.0F);
+                    bl3 = hitResult != null;
                     if (bl3) {
-                        damageAmount *= 1.5F;
+                        damageAmount *= hitResult.getDamageModifier();
                     }
 
                     damageAmount += attackDamage;
