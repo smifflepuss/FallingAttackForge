@@ -14,7 +14,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.5-2.0.1'
+version = "${mcVersion}-${modVersion}"
 group = 'com.hamusuke.fallingattack' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'falling-attack-forge'
 
@@ -155,12 +155,12 @@ mixin {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "examplemod",
-            "Specification-Vendor": "examplemodsareus",
-            "Specification-Version": "1", // We are version 1 of ourselves
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"examplemodsareus",
+            "Specification-Title": "${archivesBaseName}",
+            "Specification-Vendor": "hamusuke2303",
+            "Specification-Version": "${modVersion}", // We are version 1 of ourselves
+            "Implementation-Title": "${archivesBaseName}",
+            "Implementation-Version": "${modVersion}",
+            "Implementation-Vendor" :"hamusuke2303",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
