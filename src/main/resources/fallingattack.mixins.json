@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.hamusuke.fallingattack.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "PlayerMixin",
+    "ServerPlayerMixin"
+  ],
+  "client": [
+    "client.MinecraftMixin",
+    "client.LocalPlayerMixin",
+    "client.PlayerModelMixin",
+    "client.ItemInHandLayerMixin",
+    "client.RemotePlayerMixin",
+    "client.ClientPlayNetHandlerMixin"
+  ],
+  "refmap": "fallingattack.refmap.json"
+}
