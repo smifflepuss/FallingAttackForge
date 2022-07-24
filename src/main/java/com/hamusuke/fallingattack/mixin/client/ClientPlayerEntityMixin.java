@@ -40,7 +40,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntityMixin {
     public void startFallingAttack() {
         super.startFallingAttack();
 
-        if (Config.thirdPerson.get()) {
+        if (Config.Client.THIRD_PERSON.get()) {
             this.pointOfViewWhenStartFallingAttack = this.minecraft.options.getCameraType();
             this.minecraft.options.setCameraType(PointOfView.THIRD_PERSON_BACK);
         }
@@ -49,7 +49,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntityMixin {
     public void stopFallingAttack() {
         super.stopFallingAttack();
 
-        if (Config.thirdPerson.get()) {
+        if (Config.Client.THIRD_PERSON.get()) {
             PointOfView pointofview = this.minecraft.options.getCameraType();
             this.minecraft.options.setCameraType(this.pointOfViewWhenStartFallingAttack);
             if (pointofview.isFirstPerson() != this.minecraft.options.getCameraType().isFirstPerson()) {

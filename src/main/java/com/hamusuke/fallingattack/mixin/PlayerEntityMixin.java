@@ -1,6 +1,7 @@
 package com.hamusuke.fallingattack.mixin;
 
 import com.hamusuke.fallingattack.FallingAttack;
+import com.hamusuke.fallingattack.config.Config;
 import com.hamusuke.fallingattack.invoker.IPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureAttribute;
@@ -196,10 +197,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                     }
 
                     Vector3d vec3d = target.getDeltaMovement();
-                    boolean tookDamage = target.hurt(DamageSource.playerAttack((PlayerEntity) (Object) this), damageAmount);
+                    boolean tookDamage = target.hurt(DamageSource.playerAttack((PlayerEntity) (Object) this), damageAmount * (Config.Common.DAMAGE_AMOUNT.get() / 100.0F));
                     if (tookDamage) {
                         float yaw = (float) MathHelper.atan2(target.getX() - this.getX(), target.getZ() - this.getZ()) * 57.2957795F;
                         float strength = this.computeKnockbackStrength(distanceToTarget, fallingAttackLevel);
+                        strength *= Config.Common.KNOCKBACK_AMOUNT.get() / 100.0F;
                         if (target instanceof LivingEntity) {
                             ((LivingEntity) target).knockback(strength, -MathHelper.sin(yaw * 0.017453292F), -MathHelper.cos(yaw * 0.017453292F));
                         } else {

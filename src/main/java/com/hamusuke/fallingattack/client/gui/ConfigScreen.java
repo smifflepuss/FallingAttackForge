@@ -20,9 +20,9 @@ public class ConfigScreen extends Screen {
     }
 
     protected void init() {
-        this.addButton(new Button((this.width / 2) - (this.width / 4), this.height / 2 - 10, this.width / 2, 20, DialogTexts.optionStatus(new TranslationTextComponent("options.fallingattack.third.person"), Config.thirdPerson.get()), p_onPress_1_ -> {
-            Config.thirdPerson.set(!Config.thirdPerson.get());
-            p_onPress_1_.setMessage(DialogTexts.optionStatus(new TranslationTextComponent("options.fallingattack.third.person"), Config.thirdPerson.get()));
+        this.addButton(new Button((this.width / 2) - (this.width / 4), this.height / 2 - 10, this.width / 2, 20, DialogTexts.optionStatus(new TranslationTextComponent("options.fallingattack.third.person"), Config.Client.THIRD_PERSON.get()), p_onPress_1_ -> {
+            Config.Client.THIRD_PERSON.set(!Config.Client.THIRD_PERSON.get());
+            p_onPress_1_.setMessage(DialogTexts.optionStatus(new TranslationTextComponent("options.fallingattack.third.person"), Config.Client.THIRD_PERSON.get()));
         }, (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
             this.renderTooltip(p_onTooltip_2_, new TranslationTextComponent("options.fallingattack.third.person.desc"), p_onTooltip_3_, p_onTooltip_4_);
         }));
@@ -37,7 +37,7 @@ public class ConfigScreen extends Screen {
     }
 
     public void removed() {
-        Config.config.save();
+        Config.Client.CONFIG.save();
     }
 
     public void onClose() {

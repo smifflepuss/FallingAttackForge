@@ -21,7 +21,8 @@ public class FallingAttack {
     public static final Enchantment SHARPNESS_OF_FALLING_ATTACK = new SharpnessOfFallingAttackEnchantment();
 
     public FallingAttack() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.config);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.Client.CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.Common.CONFIG);
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> ConfigScreen::new);
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener((final FMLCommonSetupEvent event) -> NetworkManager.initNetworking());
