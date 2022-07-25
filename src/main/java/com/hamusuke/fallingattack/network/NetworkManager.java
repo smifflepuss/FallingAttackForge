@@ -1,10 +1,12 @@
 package com.hamusuke.fallingattack.network;
 
 import com.hamusuke.fallingattack.FallingAttack;
-import com.hamusuke.fallingattack.network.c2s.FallingAttackC2SPacket;
-import com.hamusuke.fallingattack.network.c2s.SyncFallingAttackC2SPacket;
-import com.hamusuke.fallingattack.network.s2c.FallingAttackS2CPacket;
-import com.hamusuke.fallingattack.network.s2c.SyncFallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.Packet;
+import com.hamusuke.fallingattack.network.packet.c2s.FallingAttackC2SPacket;
+import com.hamusuke.fallingattack.network.packet.c2s.SyncFallingAttackC2SPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.FallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.FallingAttackShockWaveS2CPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.SyncFallingAttackS2CPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -30,13 +32,14 @@ public class NetworkManager {
         INSTANCE.registerMessage(nextID(), FallingAttackS2CPacket.class, FallingAttackS2CPacket::write, FallingAttackS2CPacket::new, FallingAttackS2CPacket::handle);
         INSTANCE.registerMessage(nextID(), SyncFallingAttackC2SPacket.class, SyncFallingAttackC2SPacket::write, SyncFallingAttackC2SPacket::new, SyncFallingAttackC2SPacket::handle);
         INSTANCE.registerMessage(nextID(), SyncFallingAttackS2CPacket.class, SyncFallingAttackS2CPacket::write, SyncFallingAttackS2CPacket::new, SyncFallingAttackS2CPacket::handle);
+        INSTANCE.registerMessage(nextID(), FallingAttackShockWaveS2CPacket.class, FallingAttackShockWaveS2CPacket::write, FallingAttackShockWaveS2CPacket::new, FallingAttackShockWaveS2CPacket::handle);
     }
 
-    public static void sendToClient(Object packet, ServerPlayer player) {
+    public static void sendToClient(Packet packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    public static void sendToServer(Object packet) {
+    public static void sendToServer(Packet packet) {
         INSTANCE.sendToServer(packet);
     }
 }

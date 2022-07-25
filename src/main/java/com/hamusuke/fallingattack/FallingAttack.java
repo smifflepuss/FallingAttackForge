@@ -20,6 +20,7 @@ import net.minecraftforge.registries.RegistryObject;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class FallingAttack {
     public static final String MOD_ID = "fallingattack";
+    public static final double SHOCK_WAVE_SPREADING_SPEED_PER_TICK = 34.0D / 20.0D;
 
     public FallingAttack() {
         ModRegistries.init();

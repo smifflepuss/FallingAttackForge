@@ -1,15 +1,15 @@
-package com.hamusuke.fallingattack.network.s2c;
+package com.hamusuke.fallingattack.network.packet.s2c;
 
-import com.hamusuke.fallingattack.network.ClientOnlyPacketHandler;
+import com.hamusuke.fallingattack.network.packet.ClientPacketHandler;
+import com.hamusuke.fallingattack.network.packet.Packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.function.Supplier;
 
-public class FallingAttackS2CPacket {
+public class FallingAttackS2CPacket implements Packet {
     private final int playerEntityId;
     private final boolean start;
 
@@ -29,7 +29,7 @@ public class FallingAttackS2CPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientOnlyPacketHandler.handle(this)));
+        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handle(this)));
         ctx.get().setPacketHandled(true);
     }
 
