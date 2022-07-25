@@ -14,10 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +27,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import org.spongepowered.asm.mixin.Final;
@@ -102,7 +98,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
 
                 this.fallingAttackProgress++;
             } else if (this.fallingAttackProgress == FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
-                if (this.isInWater() || this.isInLava() || 0 > this.blockPosition().getY()) {
+                if (this.isInWater() || this.isInLava() || this.level.dimensionType().minY() > this.blockPosition().getY()) {
                     this.stopFallingAttack();
                     this.setDeltaMovement(Vec3.ZERO);
                 } else if (this.onGround) {
@@ -124,6 +120,17 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
 
                             return false;
                         }).forEach(this::fallingAttack);
+
+                        ItemStack itemStack2 = this.getMainHandItem();
+                        if (!itemStack2.isEmpty()) {
+                            ItemStack copy = itemStack2.copy();
+                            itemStack2.hurtAndBreak(1, (Player) (Object) this, player -> player.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+                            if (itemStack2.isEmpty()) {
+                                ForgeEventFactory.onPlayerDestroyItem((Player) (Object) this, copy, InteractionHand.MAIN_HAND);
+                                this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                            }
+                        }
+                        this.causeFoodExhaustion(0.1F);
                     }
                 } else {
                     this.setDeltaMovement(0.0D, -3.0D, 0.0D);
@@ -232,21 +239,6 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                         }
 
                         EnchantmentHelper.doPostDamageEffects(this, target);
-                        ItemStack itemStack2 = this.getMainHandItem();
-                        Entity entity = target;
-                        if (target instanceof PartEntity partEntity) {
-                            entity = partEntity.getParent();
-                        }
-
-                        if (!this.level.isClientSide && !itemStack2.isEmpty() && entity instanceof LivingEntity livingEntity) {
-                            ItemStack copy = itemStack2.copy();
-                            itemStack2.hurtEnemy(livingEntity, (Player) (Object) this);
-                            if (itemStack2.isEmpty()) {
-                                ForgeEventFactory.onPlayerDestroyItem((Player) (Object) this, copy, InteractionHand.MAIN_HAND);
-                                this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                            }
-                        }
-
                         if (target instanceof LivingEntity livingEntity) {
                             float n = targetHealth - livingEntity.getHealth();
                             this.awardStat(Stats.DAMAGE_DEALT, Math.round(n * 10.0F));
@@ -259,8 +251,6 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                                 serverLevel.sendParticles(ParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getY(0.5D), target.getZ(), o, 0.1D, 0.0D, 0.1D, 0.2D);
                             }
                         }
-
-                        this.causeFoodExhaustion(0.1F);
                     } else {
                         this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_NODAMAGE, this.getSoundSource(), 1.0F, 1.0F);
                         if (fireAspectEnchanted) {
