@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "PlayerMixin",
-    "ServerLevelMixin",
     "ServerPlayerMixin"
   ],
   "client": [
@@ -14,8 +13,7 @@
     "client.LocalPlayerMixin",
     "client.MinecraftMixin",
     "client.PlayerModelMixin",
-    "client.RemotePlayerMixin",
-    "client.ClientLevelMixin"
+    "client.RemotePlayerMixin"
   ],
   "refmap": "fallingattack.refmap.json"
 }

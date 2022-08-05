@@ -1,5 +1,6 @@
 package com.hamusuke.fallingattack.mixin.client;
 
+import com.hamusuke.fallingattack.client.resources.FallingAttackSoundInstance;
 import com.hamusuke.fallingattack.config.Config;
 import com.hamusuke.fallingattack.mixin.PlayerMixin;
 import com.hamusuke.fallingattack.network.NetworkManager;
@@ -40,6 +41,7 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
     public void startFallingAttack() {
         super.startFallingAttack();
 
+        this.minecraft.getSoundManager().play(new FallingAttackSoundInstance((LocalPlayer) (Object) this));
         if (Config.Client.THIRD_PERSON.get()) {
             this.camTypeWhenAttack = this.minecraft.options.getCameraType();
             this.minecraft.options.setCameraType(CameraType.THIRD_PERSON_BACK);

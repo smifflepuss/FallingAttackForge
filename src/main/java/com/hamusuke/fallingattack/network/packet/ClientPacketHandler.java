@@ -1,10 +1,7 @@
 package com.hamusuke.fallingattack.network.packet;
 
-import com.hamusuke.fallingattack.invoker.LevelInvoker;
 import com.hamusuke.fallingattack.invoker.PlayerInvoker;
-import com.hamusuke.fallingattack.math.wave.ClientFallingAttackShockWave;
 import com.hamusuke.fallingattack.network.packet.s2c.FallingAttackS2CPacket;
-import com.hamusuke.fallingattack.network.packet.s2c.FallingAttackShockWaveS2CPacket;
 import com.hamusuke.fallingattack.network.packet.s2c.SyncFallingAttackS2CPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,13 +32,6 @@ public class ClientPacketHandler {
                 invoker.setFallingAttackProgress(packet.getProgress());
                 invoker.setYawF(packet.getFallingAttackYaw());
             }
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static void handle(FallingAttackShockWaveS2CPacket packet) {
-        if (isNotClientPlayerNull()) {
-            ((LevelInvoker) mc.player.clientLevel).summonShockWave(new ClientFallingAttackShockWave(packet.getPos(), packet.getAABB(), mc.player.clientLevel));
         }
     }
 
