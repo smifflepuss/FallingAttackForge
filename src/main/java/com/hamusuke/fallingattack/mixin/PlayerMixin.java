@@ -109,7 +109,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                         Vec3 vector3d = this.position();
 
                         this.level.getEntitiesOfClass(LivingEntity.class, new AABB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY - 1.0D, axisAlignedBB.maxZ), livingEntity -> {
-                            boolean flag = !livingEntity.isSpectator() && livingEntity != this;
+                            boolean flag = !livingEntity.isSpectator() && livingEntity != this && Config.Common.ATTACKABLE_ENTITIES.isAttackable(livingEntity);
 
                             for (int i = 0; i < 2 && flag; i++) {
                                 Vec3 vector3d1 = new Vec3(livingEntity.getX(), livingEntity.getY(0.5D * (double) i), livingEntity.getZ());

@@ -1,46 +1,46 @@
 package com.hamusuke.fallingattack.config;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.commons.compress.utils.Lists;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class AttackableEntities {
     private final ForgeConfigSpec.Builder builder;
-    private final ImmutableList<Attackable> attackables;
+    private final ImmutableMap<ResourceLocation, ForgeConfigSpec.BooleanValue> attackableMap;
 
     public AttackableEntities(ForgeConfigSpec.Builder builder) {
         this.builder = builder;
-        this.attackables = ImmutableList.copyOf(this.registerConfig());
+        this.builder.push("AttackableEntities");
+        this.attackableMap = ImmutableMap.copyOf(this.registerConfig());
+        this.builder.pop();
     }
 
-    private List<Attackable> registerConfig() {
-        List<Attackable> list = Lists.newArrayList();
+    private Map<ResourceLocation, ForgeConfigSpec.BooleanValue> registerConfig() {
+        Map<ResourceLocation, ForgeConfigSpec.BooleanValue> map = Maps.newHashMap();
         Collection<EntityType<?>> values = ForgeRegistries.ENTITY_TYPES.getValues();
         for (EntityType<?> type : values) {
-            list.add(new Attackable(this.builder, Objects.requireNonNull(ForgeRegistries.ENTITY_TYPES.getKey(type)), !type.getCategory().isFriendly()));
+            ResourceLocation name = Objects.requireNonNull(ForgeRegistries.ENTITY_TYPES.getKey(type));
+            map.put(name, this.builder.define(name.toString(), !type.getCategory().isFriendly()));
         }
 
-        return list;
+        return map;
     }
 
-    public ImmutableList<Attackable> getAttackables() {
-        return this.attackables;
-    }
-
-    public static class Attackable {
-        public final ForgeConfigSpec.BooleanValue booleanValue;
-        public final ResourceLocation name;
-
-        public Attackable(ForgeConfigSpec.Builder builder, ResourceLocation name, boolean defaultV) {
-            this.booleanValue = builder.define(name.toString(), defaultV);
-            this.name = name;
+    public boolean isAttackable(LivingEntity livingEntity) {
+        ResourceLocation location = ForgeRegistries.ENTITY_TYPES.getKey(livingEntity.getType());
+        if (location != null) {
+            ForgeConfigSpec.BooleanValue booleanValue = this.attackableMap.get(location);
+            return booleanValue != null && booleanValue.get();
         }
+
+        return false;
     }
 }
