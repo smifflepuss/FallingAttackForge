@@ -104,27 +104,6 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                 } else if (this.onGround) {
                     this.fallingAttackProgress++;
 
-                    /*
-                    ItemStack sword = this.getMainHandItem();
-                    Item item = sword.getItem();
-                    if (!this.level.isClientSide() && (Object) this instanceof ServerPlayer serverPlayer && item instanceof SwordItem) {
-                        ItemStack copy = sword.copy();
-                        sword.hurtAndBreak(1, serverPlayer, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-                        if (sword.isEmpty()) {
-                            ForgeEventFactory.onPlayerDestroyItem((Player) (Object) this, copy, InteractionHand.MAIN_HAND);
-                            this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                        }
-
-                        this.level.playSound(null, this, SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                        float d = this.computeFallingAttackDistance();
-                        AABB box = this.getBoundingBox().inflate(Mth.SQRT_OF_TWO * d * 0.378D, 0.85D, Mth.SQRT_OF_TWO * d * 0.378D);
-                        ((LevelInvoker) this.level).summonShockWave(new ServerFallingAttackShockWave(serverPlayer, sword, box, this::computeFallingAttackDamage, this::computeKnockbackStrength));
-                    }
-
-                    this.resetAttackStrengthTicker();
-                    this.causeFoodExhaustion(0.1F);
-                    */
-
                     if (!this.level.isClientSide()) {
                         AABB axisAlignedBB = this.getBoundingBox().inflate(3.0D, 0.0D, 3.0D);
                         Vec3 vector3d = this.position();
