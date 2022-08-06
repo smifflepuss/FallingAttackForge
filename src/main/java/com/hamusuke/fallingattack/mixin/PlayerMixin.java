@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -19,7 +20,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -80,7 +80,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
     @Inject(method = "aiStep", at = @At("HEAD"))
     void aiStepV(CallbackInfo ci) {
         if (this.isUsingFallingAttack()) {
-            if (!this.level.isClientSide() && !(this.getMainHandItem().getItem() instanceof SwordItem)) {
+            if (!this.level.isClientSide() && !Config.Common.USABLE_ITEMS.isUsable(this.getMainHandItem().getItem())) {
                 this.stopFallingAttack();
                 this.sendFallingAttackPacket(false);
             }
@@ -104,11 +104,26 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                 } else if (this.onGround) {
                     this.fallingAttackProgress++;
 
-                    if (!this.level.isClientSide()) {
-                        AABB axisAlignedBB = this.getBoundingBox().inflate(3.0D, 0.0D, 3.0D);
+                    if (!this.level.isClientSide() && (Object) this instanceof ServerPlayer serverPlayer) {
+                        float d = Mth.clamp(this.computeFallingAttackDistance() * 1.5F, 0.0F, 16.0F);
+                        AABB axisAlignedBB = this.getBoundingBox().inflate(d, 0.0D, d);
                         Vec3 vector3d = this.position();
 
-                        this.level.getEntitiesOfClass(LivingEntity.class, new AABB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY - 1.0D, axisAlignedBB.maxZ), livingEntity -> {
+                        for (int i = 0; i < 90; i++) {
+                            if (i % 6 == 0) {
+                                float rad = i * Mth.DEG_TO_RAD;
+                                float x = Mth.cos(rad) * d;
+                                float y = Mth.sin(rad) * d;
+                                ServerLevel level = (ServerLevel) this.level;
+                                level.sendParticles(serverPlayer, ParticleTypes.EXPLOSION, true, this.getX() + x, this.getY(), this.getZ() + y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                                level.sendParticles(serverPlayer, ParticleTypes.EXPLOSION, true, this.getX() - x, this.getY(), this.getZ() + y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                                level.sendParticles(serverPlayer, ParticleTypes.EXPLOSION, true, this.getX() + x, this.getY(), this.getZ() - y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                                level.sendParticles(serverPlayer, ParticleTypes.EXPLOSION, true, this.getX() - x, this.getY(), this.getZ() - y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                            }
+                        }
+
+                        this.level.playSound((Player) (Object) this, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                        this.level.getEntitiesOfClass(LivingEntity.class, new AABB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.minY + 1.0F, axisAlignedBB.maxZ), livingEntity -> {
                             boolean flag = !livingEntity.isSpectator() && livingEntity != this && Config.Common.ATTACKABLE_ENTITIES.isAttackable(livingEntity);
 
                             for (int i = 0; i < 2 && flag; i++) {
@@ -123,13 +138,11 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                         }).forEach(this::fallingAttack);
 
                         ItemStack sword = this.getMainHandItem();
-                        if ((Object) this instanceof ServerPlayer serverPlayer) {
-                            ItemStack copy = sword.copy();
-                            sword.hurtAndBreak(1, serverPlayer, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-                            if (sword.isEmpty()) {
-                                ForgeEventFactory.onPlayerDestroyItem((Player) (Object) this, copy, InteractionHand.MAIN_HAND);
-                                this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                            }
+                        ItemStack copy = sword.copy();
+                        sword.hurtAndBreak(1, serverPlayer, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+                        if (sword.isEmpty()) {
+                            ForgeEventFactory.onPlayerDestroyItem((Player) (Object) this, copy, InteractionHand.MAIN_HAND);
+                            this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                         }
                         this.causeFoodExhaustion(0.1F);
                     }
@@ -265,7 +278,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
 
     public boolean checkFallingAttack() {
         AABB axisAlignedBB = this.getBoundingBox();
-        return this.fallingAttackCooldown == 0 && this.level.noCollision(this, new AABB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(MobEffects.LEVITATION) && this.getMainHandItem().getItem() instanceof SwordItem;
+        return this.fallingAttackCooldown == 0 && this.level.noCollision(this, new AABB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(MobEffects.LEVITATION) && Config.Common.USABLE_ITEMS.isUsable(this.getMainHandItem().getItem());
     }
 
     public void startFallingAttack() {

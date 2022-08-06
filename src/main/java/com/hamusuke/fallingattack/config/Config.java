@@ -1,5 +1,7 @@
 package com.hamusuke.fallingattack.config;
 
+import com.hamusuke.fallingattack.config.json.AttackableEntities;
+import com.hamusuke.fallingattack.config.json.UsableItems;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
@@ -13,8 +15,8 @@ public class Config {
         private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
         public static final ForgeConfigSpec.IntValue DAMAGE_AMOUNT = BUILDER.comment("default: 100%").defineInRange("damage_amount", 100, 0, Integer.MAX_VALUE);
         public static final ForgeConfigSpec.IntValue KNOCKBACK_AMOUNT = BUILDER.comment("default: 100%").defineInRange("knockback_amount", 100, 0, Integer.MAX_VALUE);
-        public static final AttackableEntities ATTACKABLE_ENTITIES = new AttackableEntities(BUILDER);
-        public static final UsableItems USABLE_ITEMS = new UsableItems(BUILDER);
+        public static final AttackableEntities ATTACKABLE_ENTITIES = new AttackableEntities();
+        public static final UsableItems USABLE_ITEMS = new UsableItems();
         public static final ForgeConfigSpec CONFIG = BUILDER.build();
     }
 }
