@@ -25,13 +25,13 @@ public class FallingAttackSoundInstance extends AbstractTickableSoundInstance {
     }
 
     public void tick() {
+        if (this.player.isRemoved() || !this.invoker.isUsingFallingAttack()) {
+            this.stop();
+        }
+
         if (this.invoker.getFallingAttackProgress() == PlayerInvoker.FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
             if (this.volume < 1.0F) {
                 this.volume = 1.0F;
-            }
-
-            if (this.player.isRemoved() || !this.invoker.isUsingFallingAttack()) {
-                this.stop();
             }
         } else if (this.invoker.getFallingAttackProgress() > PlayerInvoker.FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
             this.stop();

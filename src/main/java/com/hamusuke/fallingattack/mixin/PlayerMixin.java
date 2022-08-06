@@ -60,6 +60,9 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
     @Shadow
     public abstract void crit(Entity p_36156_);
 
+    @Shadow
+    public abstract SoundSource getSoundSource();
+
     protected boolean fallingAttack;
     protected float yPosWhenStartFallingAttack;
     protected int fallingAttackProgress;
@@ -100,12 +103,11 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
             } else if (this.fallingAttackProgress == FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
                 if (this.isInWater() || this.isInLava() || this.level.dimensionType().minY() > this.blockPosition().getY()) {
                     this.stopFallingAttack();
-                    this.setDeltaMovement(Vec3.ZERO);
                 } else if (this.onGround) {
                     this.fallingAttackProgress++;
 
                     if (!this.level.isClientSide() && (Object) this instanceof ServerPlayer serverPlayer) {
-                        float d = Mth.clamp(this.computeFallingAttackDistance() * 1.5F, 0.0F, 16.0F);
+                        float d = Mth.clamp(this.computeFallingAttackDistance(), 0.0F, 16.0F);
                         AABB axisAlignedBB = this.getBoundingBox().inflate(d, 0.0D, d);
                         Vec3 vector3d = this.position();
 
@@ -122,7 +124,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                             }
                         }
 
-                        this.level.playSound((Player) (Object) this, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                        this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 1.0F, 1.0F);
                         this.level.getEntitiesOfClass(LivingEntity.class, new AABB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.minY + 1.0F, axisAlignedBB.maxZ), livingEntity -> {
                             boolean flag = !livingEntity.isSpectator() && livingEntity != this && Config.Common.ATTACKABLE_ENTITIES.isAttackable(livingEntity);
 
@@ -148,6 +150,9 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                     }
                 } else {
                     this.setDeltaMovement(0.0D, -3.0D, 0.0D);
+                    if (!this.level.isClientSide() && this.getServer() != null && this.getServer().getTickCount() % 2 == 0) {
+                        this.addFallingParticle((ServerPlayer) (Object) this);
+                    }
                 }
             } else if (this.fallingAttackProgress < FALLING_ATTACK_END_TICKS) {
                 this.fallingAttackProgress++;
@@ -299,7 +304,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
     public void stopFallingAttack() {
         this.fallingAttack = false;
         this.fallingAttackProgress = 0;
-        this.fallingAttackCooldown = 30;
+        this.fallingAttackCooldown = 10;
         this.yPosWhenStartFallingAttack = 0.0F;
     }
 
