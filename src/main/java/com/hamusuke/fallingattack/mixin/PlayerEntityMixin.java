@@ -12,8 +12,8 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SwordItem;
 import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.Effects;
@@ -27,7 +27,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import org.spongepowered.asm.mixin.Final;
@@ -84,7 +83,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
     @Inject(method = "aiStep", at = @At("HEAD"))
     void aiStepV(CallbackInfo ci) {
         if (this.isUsingFallingAttack()) {
-            if (!this.level.isClientSide() && !(this.getMainHandItem().getItem() instanceof SwordItem)) {
+            if (!this.level.isClientSide() && !Config.Common.USABLE_ITEMS.isUsable(this.getMainHandItem().getItem())) {
                 this.stopFallingAttack();
                 this.sendFallingAttackPacket(false);
             }
@@ -102,17 +101,37 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
                 this.fallingAttackProgress++;
             } else if (this.fallingAttackProgress == FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
-                if (this.isInWater() || this.isInLava() || 0 > this.blockPosition().getY()) {
+                boolean b = 0 > this.blockPosition().getY();
+                if (this.isInWater() || this.isInLava() || b) {
                     this.stopFallingAttack();
-                    this.setDeltaMovement(Vector3d.ZERO);
+                    if (b) {
+                        this.setDeltaMovement(Vector3d.ZERO);
+                    }
                 } else if (this.onGround) {
                     this.fallingAttackProgress++;
+
                     if (!this.level.isClientSide()) {
-                        AxisAlignedBB axisAlignedBB = this.getBoundingBox().inflate(3.0D, 0.0D, 3.0D);
+                        ServerPlayerEntity serverPlayer = (ServerPlayerEntity) (Object) this;
+                        float d = MathHelper.clamp(this.computeFallingAttackDistance(), 0.0F, 16.0F);
+                        AxisAlignedBB axisAlignedBB = this.getBoundingBox().inflate(d, 0.0D, d);
                         Vector3d vector3d = this.position();
 
-                        this.level.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY - 1.0D, axisAlignedBB.maxZ), livingEntity -> {
-                            boolean flag = !livingEntity.isSpectator() && livingEntity != this;
+                        for (int i = 0; i < 90; i++) {
+                            if (i % 6 == 0) {
+                                float rad = i * 0.017453292F;
+                                float x = MathHelper.cos(rad) * d;
+                                float y = MathHelper.sin(rad) * d;
+                                ServerWorld level = (ServerWorld) this.level;
+                                level.sendParticles(ParticleTypes.EXPLOSION, this.getX() + x, this.getY(), this.getZ() + y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                                level.sendParticles(ParticleTypes.EXPLOSION, this.getX() - x, this.getY(), this.getZ() + y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                                level.sendParticles(ParticleTypes.EXPLOSION, this.getX() + x, this.getY(), this.getZ() - y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                                level.sendParticles(ParticleTypes.EXPLOSION, this.getX() - x, this.getY(), this.getZ() - y, 6, 1.0D, 0.0D, 1.0D, 1.0D);
+                            }
+                        }
+
+                        this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 1.0F, 1.0F);
+                        this.level.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.minY + 1.0D, axisAlignedBB.maxZ), livingEntity -> {
+                            boolean flag = !livingEntity.isSpectator() && livingEntity != this && Config.Common.ATTACKABLE_ENTITIES.isAttackable(livingEntity);
 
                             for (int i = 0; i < 2 && flag; i++) {
                                 Vector3d vector3d1 = new Vector3d(livingEntity.getX(), livingEntity.getY(0.5D * (double) i), livingEntity.getZ());
@@ -124,9 +143,29 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
                             return false;
                         }).forEach(this::fallingAttack);
+
+                        ItemStack sword = this.getMainHandItem();
+                        if (!sword.isEmpty()) {
+                            ItemStack copy = sword.copy();
+                            sword.hurtAndBreak(1, serverPlayer, e -> e.broadcastBreakEvent(EquipmentSlotType.MAINHAND));
+                            if (sword.isEmpty()) {
+                                ForgeEventFactory.onPlayerDestroyItem((PlayerEntity) (Object) this, copy, Hand.MAIN_HAND);
+                                this.setItemInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+                            }
+                        }
+                        this.causeFoodExhaustion(0.1F);
                     }
                 } else {
                     this.setDeltaMovement(0.0D, -3.0D, 0.0D);
+                    if (!this.level.isClientSide() && this.getServer() != null && this.getServer().getTickCount() % 2 == 0) {
+                        ServerWorld level = (ServerWorld) this.level;
+                        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+                        AxisAlignedBB aabb = player.getBoundingBox();
+                        level.sendParticles(ParticleTypes.POOF, aabb.minX - 0.125D, aabb.minY - 1.0D, player.getZ(), 5, 0.5D, 1.0D, 0.0D, 1.0D);
+                        level.sendParticles(ParticleTypes.POOF, aabb.maxX + 0.125D, aabb.minY - 1.0D, player.getZ(), 5, 0.5D, 1.0D, 0.0D, 1.0D);
+                        level.sendParticles(ParticleTypes.POOF, player.getX(), aabb.minY - 1.0D, aabb.minZ - 0.125D, 5, 0.0D, 1.0D, 0.5D, 1.0D);
+                        level.sendParticles(ParticleTypes.POOF, player.getX(), aabb.minY - 1.0D, aabb.maxZ + 0.125D, 5, 0.0D, 1.0D, 0.5D, 1.0D);
+                    }
                 }
             } else if (this.fallingAttackProgress < FALLING_ATTACK_END_TICKS) {
                 this.fallingAttackProgress++;
@@ -178,7 +217,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                     this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, this.getSoundSource(), 1.0F, 1.0F);
 
                     boolean bl3 = !this.onClimbable() && !this.isInWater() && !this.hasEffect(Effects.BLINDNESS) && !this.isPassenger() && target instanceof LivingEntity;
-                    CriticalHitEvent hitResult = ForgeHooks.getCriticalHit((PlayerEntity) (Object)this, target, bl3, bl3 ? 1.5F : 1.0F);
+                    CriticalHitEvent hitResult = ForgeHooks.getCriticalHit((PlayerEntity) (Object) this, target, bl3, bl3 ? 1.5F : 1.0F);
                     bl3 = hitResult != null;
                     if (bl3) {
                         damageAmount *= hitResult.getDamageModifier();
@@ -232,21 +271,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                         }
 
                         EnchantmentHelper.doPostDamageEffects(this, target);
-                        ItemStack itemStack2 = this.getMainHandItem();
-                        Entity entity = target;
-                        if (target instanceof PartEntity) {
-                            entity = ((PartEntity<?>) target).getParent();
-                        }
-
-                        if (!this.level.isClientSide && !itemStack2.isEmpty() && entity instanceof LivingEntity) {
-                            ItemStack copy = itemStack2.copy();
-                            itemStack2.hurtEnemy((LivingEntity) entity, (PlayerEntity) (Object) this);
-                            if (itemStack2.isEmpty()) {
-                                ForgeEventFactory.onPlayerDestroyItem((PlayerEntity) (Object) this, copy, Hand.MAIN_HAND);
-                                this.setItemInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
-                            }
-                        }
-
                         if (target instanceof LivingEntity) {
                             float n = targetHealth - ((LivingEntity) target).getHealth();
                             this.awardStat(Stats.DAMAGE_DEALT, Math.round(n * 10.0F));
@@ -259,8 +283,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
                                 ((ServerWorld) this.level).sendParticles(ParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getY(0.5D), target.getZ(), o, 0.1D, 0.0D, 0.1D, 0.2D);
                             }
                         }
-
-                        this.causeFoodExhaustion(0.1F);
                     } else {
                         this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_NODAMAGE, this.getSoundSource(), 1.0F, 1.0F);
                         if (fireAspectEnchanted) {
@@ -274,7 +296,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
 
     public boolean checkFallingAttack() {
         AxisAlignedBB axisAlignedBB = this.getBoundingBox();
-        return this.fallingAttackCooldown == 0 && this.level.noCollision(this, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(Effects.LEVITATION) && this.getMainHandItem().getItem() instanceof SwordItem;
+        return this.fallingAttackCooldown == 0 && this.level.noCollision(this, new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.minY - 2.0D, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)) && !this.onClimbable() && !this.isPassenger() && !this.abilities.flying && !this.isNoGravity() && !this.onGround && !this.isUsingFallingAttack() && !this.isInLava() && !this.isInWater() && !this.hasEffect(Effects.LEVITATION) && Config.Common.USABLE_ITEMS.isUsable(this.getMainHandItem().getItem());
     }
 
     public void startFallingAttack() {
@@ -295,9 +317,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IPlayerE
     public void stopFallingAttack() {
         this.fallingAttack = false;
         this.fallingAttackProgress = 0;
-        this.fallingAttackCooldown = 30;
+        this.fallingAttackCooldown = 10;
         this.yPosWhenStartFallingAttack = 0.0F;
-        this.setDeltaMovement(0.0D, 0.0D, 0.0D);
     }
 
     public int getFallingAttackProgress() {

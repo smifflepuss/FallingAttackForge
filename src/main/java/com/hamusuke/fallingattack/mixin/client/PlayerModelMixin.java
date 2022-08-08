@@ -20,7 +20,7 @@ public abstract class PlayerModelMixin<T extends LivingEntity> extends BipedMode
         super(p_i1148_1_);
     }
 
-    @Inject(method = "setupAnim", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/model/BipedModel;setupAnim(Lnet/minecraft/entity/LivingEntity;FFFFF)V", shift = At.Shift.AFTER), cancellable = true)
+    @Inject(method = "setupAnim(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/model/BipedModel;setupAnim(Lnet/minecraft/entity/LivingEntity;FFFFF)V", shift = At.Shift.AFTER))
     void setupAnim(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci) {
         if (livingEntity instanceof AbstractClientPlayerEntity) {
             AbstractClientPlayerEntity abstractClientPlayerEntity = (AbstractClientPlayerEntity) livingEntity;

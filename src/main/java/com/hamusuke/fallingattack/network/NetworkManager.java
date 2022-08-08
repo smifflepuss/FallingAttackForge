@@ -1,10 +1,11 @@
 package com.hamusuke.fallingattack.network;
 
 import com.hamusuke.fallingattack.FallingAttack;
-import com.hamusuke.fallingattack.network.c2s.FallingAttackC2SPacket;
-import com.hamusuke.fallingattack.network.c2s.SyncFallingAttackC2SPacket;
-import com.hamusuke.fallingattack.network.s2c.FallingAttackS2CPacket;
-import com.hamusuke.fallingattack.network.s2c.SyncFallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.Packet;
+import com.hamusuke.fallingattack.network.packet.c2s.FallingAttackC2SPacket;
+import com.hamusuke.fallingattack.network.packet.c2s.SyncFallingAttackC2SPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.FallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.SyncFallingAttackS2CPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -32,11 +33,11 @@ public class NetworkManager {
         INSTANCE.registerMessage(nextID(), SyncFallingAttackS2CPacket.class, SyncFallingAttackS2CPacket::write, SyncFallingAttackS2CPacket::new, SyncFallingAttackS2CPacket::handle);
     }
 
-    public static void sendToClient(Object packet, ServerPlayerEntity player) {
+    public static void sendToClient(Packet packet, ServerPlayerEntity player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    public static void sendToServer(Object packet) {
+    public static void sendToServer(Packet packet) {
         INSTANCE.sendToServer(packet);
     }
 }

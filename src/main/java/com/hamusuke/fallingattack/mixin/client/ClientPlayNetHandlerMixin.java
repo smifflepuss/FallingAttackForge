@@ -20,6 +20,8 @@ public class ClientPlayNetHandlerMixin {
 
     @Inject(method = "handleLogin", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftGame;onStartGameSession()V", shift = At.Shift.BEFORE))
     private void handleLogin(SJoinGamePacket p_147282_1_, CallbackInfo ci) {
-        ((IPlayerEntity) this.minecraft.player).sendSynchronizeFallingAttackPacket();
+        if (this.minecraft.player != null) {
+            ((IPlayerEntity) this.minecraft.player).sendSynchronizeFallingAttackPacket();
+        }
     }
 }

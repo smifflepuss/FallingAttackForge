@@ -1,8 +1,8 @@
 package com.hamusuke.fallingattack.mixin;
 
-import com.hamusuke.fallingattack.network.s2c.FallingAttackS2CPacket;
 import com.hamusuke.fallingattack.network.NetworkManager;
-import com.hamusuke.fallingattack.network.s2c.SyncFallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.FallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.SyncFallingAttackS2CPacket;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;

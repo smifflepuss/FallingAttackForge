@@ -1,13 +1,13 @@
-package com.hamusuke.fallingattack.network.c2s;
+package com.hamusuke.fallingattack.network.packet.c2s;
 
 import com.hamusuke.fallingattack.invoker.IPlayerEntity;
+import com.hamusuke.fallingattack.network.packet.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.function.Supplier;
 
-public class FallingAttackC2SPacket {
+public class FallingAttackC2SPacket implements Packet {
     private final boolean start;
 
     public FallingAttackC2SPacket(PacketBuffer buffer) {
@@ -18,26 +18,27 @@ public class FallingAttackC2SPacket {
         this.start = start;
     }
 
+    @Override
     public void write(PacketBuffer buffer) {
         buffer.writeBoolean(this.start);
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        MutableBoolean mutableBoolean = new MutableBoolean();
         ctx.get().enqueueWork(() -> {
             IPlayerEntity invoker = (IPlayerEntity) ctx.get().getSender();
-            if (this.start) {
-                if (invoker.checkFallingAttack()) {
-                    invoker.startFallingAttack();
-                    invoker.sendFallingAttackPacket(true);
+            if (invoker != null) {
+                if (this.start) {
+                    if (invoker.checkFallingAttack()) {
+                        invoker.startFallingAttack();
+                        invoker.sendFallingAttackPacket(true);
+                    }
+                } else {
+                    invoker.stopFallingAttack();
+                    invoker.sendFallingAttackPacket(false);
                 }
-            } else {
-                invoker.stopFallingAttack();
-                invoker.sendFallingAttackPacket(false);
             }
-
-            mutableBoolean.setTrue();
         });
-        ctx.get().setPacketHandled(mutableBoolean.booleanValue());
+        ctx.get().setPacketHandled(true);
     }
 }

@@ -30,20 +30,25 @@ public abstract class MinecraftMixin {
     void startAttack(CallbackInfo ci) {
         IPlayerEntity invoker = (IPlayerEntity) this.player;
 
-        if (this.options.keyShift.isDown() && !invoker.isUsingFallingAttack()) {
-            if (((IPlayerEntity) this.player).checkFallingAttack()) {
-                this.options.keyShift.setDown(false);
-                invoker.sendFallingAttackPacket(true);
+        if (invoker != null) {
+            if (this.options.keyShift.isDown() && !invoker.isUsingFallingAttack()) {
+                if (invoker.checkFallingAttack()) {
+                    this.options.keyShift.setDown(false);
+                    invoker.sendFallingAttackPacket(true);
+                    ci.cancel();
+                }
+            } else if (invoker.isUsingFallingAttack()) {
+                invoker.sendFallingAttackPacket(false);
                 ci.cancel();
             }
-        } else if (invoker.isUsingFallingAttack()) {
-            invoker.sendFallingAttackPacket(false);
         }
     }
 
     @Inject(method = "continueAttack", at = @At("HEAD"), cancellable = true)
     void continueAttack(boolean p_147115_1_, CallbackInfo ci) {
-        if (((IPlayerEntity) this.player).isUsingFallingAttack()) {
+        IPlayerEntity invoker = (IPlayerEntity) this.player;
+
+        if (invoker != null && invoker.isUsingFallingAttack()) {
             ci.cancel();
         }
     }

@@ -1,15 +1,15 @@
-package com.hamusuke.fallingattack.network.s2c;
+package com.hamusuke.fallingattack.network.packet.s2c;
 
-import com.hamusuke.fallingattack.network.ClientOnlyPacketHandler;
+import com.hamusuke.fallingattack.network.packet.ClientPacketHandler;
+import com.hamusuke.fallingattack.network.packet.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.function.Supplier;
 
-public class SyncFallingAttackS2CPacket {
+public class SyncFallingAttackS2CPacket implements Packet {
     private final int playerEntityId;
     private final boolean fallingAttack;
     private final float fallingAttackYPos;
@@ -32,6 +32,7 @@ public class SyncFallingAttackS2CPacket {
         this.fallingAttackYaw = yaw;
     }
 
+    @Override
     public void write(PacketBuffer buffer) {
         buffer.writeVarInt(this.playerEntityId);
         buffer.writeBoolean(this.fallingAttack);
@@ -40,10 +41,10 @@ public class SyncFallingAttackS2CPacket {
         buffer.writeFloat(this.fallingAttackYaw);
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        MutableBoolean mutableBoolean = new MutableBoolean();
-        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> mutableBoolean.setValue(ClientOnlyPacketHandler.handle(this))));
-        ctx.get().setPacketHandled(mutableBoolean.booleanValue());
+        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handle(this)));
+        ctx.get().setPacketHandled(true);
     }
 
     public int getPlayerEntityId() {
