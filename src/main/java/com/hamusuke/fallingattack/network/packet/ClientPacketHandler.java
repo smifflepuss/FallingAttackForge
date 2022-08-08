@@ -1,13 +1,13 @@
-package com.hamusuke.fallingattack.network;
+package com.hamusuke.fallingattack.network.packet;
 
 import com.hamusuke.fallingattack.invoker.PlayerInvoker;
-import com.hamusuke.fallingattack.network.s2c.FallingAttackS2CPacket;
-import com.hamusuke.fallingattack.network.s2c.SyncFallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.FallingAttackS2CPacket;
+import com.hamusuke.fallingattack.network.packet.s2c.SyncFallingAttackS2CPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ClientOnlyPacketHandler {
+public class ClientPacketHandler {
     private static final Minecraft mc = Minecraft.getInstance();
 
     @OnlyIn(Dist.CLIENT)

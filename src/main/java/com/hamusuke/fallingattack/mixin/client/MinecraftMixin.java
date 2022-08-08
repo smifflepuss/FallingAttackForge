@@ -49,7 +49,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "continueAttack", at = @At("HEAD"), cancellable = true)
     void continueAttack(boolean p_147115_1_, CallbackInfo ci) {
-        if (this.player != null && ((PlayerInvoker) this.player).isUsingFallingAttack()) {
+        if (this.player instanceof PlayerInvoker invoker && invoker.isUsingFallingAttack()) {
             ci.cancel();
         }
     }

@@ -5,6 +5,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,8 +35,8 @@ public abstract class PlayerModelMixin<T extends LivingEntity> extends HumanoidM
                     abstractClientPlayer.yBodyRot = invoker.getYawF() + 36.0F * invoker.getFallingAttackProgress() * (livingEntity.getMainArm() == HumanoidArm.LEFT ? 1 : -1);
                     abstractClientPlayer.yHeadRot = abstractClientPlayer.yBodyRot;
                 } else {
-                    this.getArm(livingEntity.getMainArm()).xRot = -85.0F * 0.017453292F;
-                    this.getArm(livingEntity.getMainArm().getOpposite()).xRot = 80.0F * 0.017453292F;
+                    this.getArm(livingEntity.getMainArm()).xRot = -85.0F * Mth.DEG_TO_RAD;
+                    this.getArm(livingEntity.getMainArm().getOpposite()).xRot = 80.0F * Mth.DEG_TO_RAD;
                 }
             } else if (!Float.isNaN(invoker.getYawF())) {
                 invoker.setYawF(Float.NaN);

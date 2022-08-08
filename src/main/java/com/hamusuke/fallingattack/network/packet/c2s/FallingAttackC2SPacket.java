@@ -1,12 +1,13 @@
-package com.hamusuke.fallingattack.network.c2s;
+package com.hamusuke.fallingattack.network.packet.c2s;
 
 import com.hamusuke.fallingattack.invoker.PlayerInvoker;
+import com.hamusuke.fallingattack.network.packet.Packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class FallingAttackC2SPacket {
+public class FallingAttackC2SPacket implements Packet {
     private final boolean start;
 
     public FallingAttackC2SPacket(FriendlyByteBuf buffer) {
@@ -24,14 +25,16 @@ public class FallingAttackC2SPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             PlayerInvoker invoker = (PlayerInvoker) ctx.get().getSender();
-            if (this.start) {
-                if (invoker.checkFallingAttack()) {
-                    invoker.startFallingAttack();
-                    invoker.sendFallingAttackPacket(true);
+            if (invoker != null) {
+                if (this.start) {
+                    if (invoker.checkFallingAttack()) {
+                        invoker.startFallingAttack();
+                        invoker.sendFallingAttackPacket(true);
+                    }
+                } else {
+                    invoker.stopFallingAttack();
+                    invoker.sendFallingAttackPacket(false);
                 }
-            } else {
-                invoker.stopFallingAttack();
-                invoker.sendFallingAttackPacket(false);
             }
         });
         ctx.get().setPacketHandled(true);

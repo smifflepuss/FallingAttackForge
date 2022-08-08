@@ -25,7 +25,7 @@ public abstract class RemotePlayerMixin extends AbstractClientPlayer implements 
             if (this.getFallingAttackProgress() < FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
                 this.setFallingAttackProgress(this.getFallingAttackProgress() + 1);
             } else if (this.getFallingAttackProgress() == FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
-                if (this.isInWater() || this.isInLava() || 0 > this.blockPosition().getY()) {
+                if (this.isInWater() || this.isInLava() || this.level.dimensionType().minY() > this.blockPosition().getY()) {
                     this.stopFallingAttack();
                 } else if (this.onGround) {
                     this.setFallingAttackProgress(this.getFallingAttackProgress() + 1);
