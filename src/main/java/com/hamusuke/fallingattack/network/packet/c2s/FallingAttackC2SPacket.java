@@ -18,10 +18,12 @@ public class FallingAttackC2SPacket implements Packet {
         this.start = start;
     }
 
+    @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeBoolean(this.start);
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             PlayerInvoker invoker = (PlayerInvoker) ctx.get().getSender();

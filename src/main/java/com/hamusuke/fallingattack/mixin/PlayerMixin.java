@@ -145,11 +145,13 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                         }).forEach(this::fallingAttack);
 
                         ItemStack sword = this.getMainHandItem();
-                        ItemStack copy = sword.copy();
-                        sword.hurtAndBreak(1, serverPlayer, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-                        if (sword.isEmpty()) {
-                            ForgeEventFactory.onPlayerDestroyItem((Player) (Object) this, copy, InteractionHand.MAIN_HAND);
-                            this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                        if (!sword.isEmpty()) {
+                            ItemStack copy = sword.copy();
+                            sword.hurtAndBreak(1, serverPlayer, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+                            if (sword.isEmpty()) {
+                                ForgeEventFactory.onPlayerDestroyItem((Player) (Object) this, copy, InteractionHand.MAIN_HAND);
+                                this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                            }
                         }
                         this.causeFoodExhaustion(0.1F);
                     }

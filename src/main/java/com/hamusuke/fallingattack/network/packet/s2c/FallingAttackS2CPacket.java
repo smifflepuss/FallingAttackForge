@@ -23,11 +23,13 @@ public class FallingAttackS2CPacket implements Packet {
         this.start = start;
     }
 
+    @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeVarInt(this.playerEntityId);
         buffer.writeBoolean(this.start);
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handle(this)));
         ctx.get().setPacketHandled(true);

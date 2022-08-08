@@ -32,6 +32,7 @@ public class SyncFallingAttackS2CPacket implements Packet {
         this.fallingAttackYaw = yaw;
     }
 
+    @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeVarInt(this.playerEntityId);
         buffer.writeBoolean(this.fallingAttack);
@@ -40,6 +41,7 @@ public class SyncFallingAttackS2CPacket implements Packet {
         buffer.writeFloat(this.fallingAttackYaw);
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handle(this)));
         ctx.get().setPacketHandled(true);
