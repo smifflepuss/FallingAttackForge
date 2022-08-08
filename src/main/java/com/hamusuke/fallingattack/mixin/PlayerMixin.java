@@ -130,7 +130,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
                         }
 
                         this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_EXPLODE, this.getSoundSource(), 1.0F, 1.0F);
-                        this.level.getEntitiesOfClass(LivingEntity.class, new AABB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.minY + 1.0F, axisAlignedBB.maxZ), livingEntity -> {
+                        this.level.getEntitiesOfClass(LivingEntity.class, new AABB(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.minY + 1.0D, axisAlignedBB.maxZ), livingEntity -> {
                             boolean flag = !livingEntity.isSpectator() && livingEntity != this && Config.Common.ATTACKABLE_ENTITIES.isAttackable(livingEntity);
 
                             for (int i = 0; i < 2 && flag; i++) {
