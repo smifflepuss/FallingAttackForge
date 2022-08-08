@@ -14,9 +14,11 @@ public class SyncFallingAttackC2SPacket implements Packet {
     public SyncFallingAttackC2SPacket() {
     }
 
+    @Override
     public void write(FriendlyByteBuf ignored) {
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             PlayerInvoker invoker = (PlayerInvoker) ctx.get().getSender();
