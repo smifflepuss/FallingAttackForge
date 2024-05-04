@@ -24,7 +24,7 @@ public class ConfigScreen extends Screen {
             Config.Client.THIRD_PERSON.set(!Config.Client.THIRD_PERSON.get());
             p_onPress_1_.setMessage(CommonComponents.optionStatus(Component.translatable("options.fallingattack.third.person"), Config.Client.THIRD_PERSON.get()));
         }, (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
-            this.renderTooltip(p_onTooltip_2_, Component.translatable("options.fallingattack.third.person.desc"), p_onTooltip_3_, p_onTooltip_4_);
+            this.renderWithTooltip(p_onTooltip_2_, Component.translatable("options.fallingattack.third.person.desc"), p_onTooltip_3_, p_onTooltip_4_);
         }));
 
         this.addRenderableWidget(new Button((this.width / 2) - (this.width / 4), this.height - 20, this.width / 2, 20, CommonComponents.GUI_DONE, p_onPress_1_ -> this.onClose()));
