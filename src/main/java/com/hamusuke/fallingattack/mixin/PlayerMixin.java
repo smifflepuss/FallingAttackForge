@@ -90,7 +90,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerInvoker 
         if (this.fallingattack$isUsingFallingAttack()) {
             if (!this.level().isClientSide() && !Config.Common.USABLE_ITEMS.isUsable(this.getMainHandItem().getItem())) {
                 this.fallingattack$stopFallingAttack();
-                this.sendFallingAttackPacket(false);
+                this.fallingattack$sendFallingAttackPacket(false);
             }
 
             if (this.fallingattack$fallingAttackProgress < FIRST_FALLING_ATTACK_PROGRESS_TICKS) {

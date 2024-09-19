@@ -23,7 +23,7 @@ public class SyncFallingAttackC2SPacket implements Packet {
         ctx.get().enqueueWork(() -> {
             PlayerInvoker invoker = (PlayerInvoker) ctx.get().getSender();
             if (invoker != null) {
-                invoker.sendSynchronizeFallingAttackPacket();
+                invoker.fallingattack$sendSynchronizeFallingAttackPacket();
             }
         });
         ctx.get().setPacketHandled(true);

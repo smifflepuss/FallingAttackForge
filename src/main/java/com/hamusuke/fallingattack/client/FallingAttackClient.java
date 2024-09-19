@@ -6,6 +6,6 @@ import net.minecraftforge.common.MinecraftForge;
 
 public class FallingAttackClient {
     public static void init() {
-        MinecraftForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingIn event) -> ((PlayerInvoker) event.getPlayer()).sendSynchronizeFallingAttackPacket());
+        MinecraftForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingIn event) -> ((PlayerInvoker) event.getPlayer()).fallingattack$sendSynchronizeFallingAttackPacket());
     }
 }
