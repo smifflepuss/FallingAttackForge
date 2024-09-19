@@ -15,9 +15,9 @@ public class ClientPacketHandler {
         if (isNotClientPlayerNull()) {
             if (mc.player.clientLevel.getEntity(packet.getPlayerEntityId()) instanceof PlayerInvoker invoker) {
                 if (packet.isStart()) {
-                    invoker.startFallingAttack();
+                    invoker.fallingattack$startFallingAttack();
                 } else {
-                    invoker.stopFallingAttack();
+                    invoker.fallingattack$stopFallingAttack();
                 }
             }
         }
@@ -27,10 +27,10 @@ public class ClientPacketHandler {
     public static void handle(SyncFallingAttackS2CPacket packet) {
         if (isNotClientPlayerNull()) {
             if (packet.isUsingFallingAttack() && mc.player.clientLevel.getEntity(packet.getPlayerEntityId()) instanceof PlayerInvoker invoker) {
-                invoker.startFallingAttack();
-                invoker.setFallingAttackYPos(packet.getFallingAttackYPos());
-                invoker.setFallingAttackProgress(packet.getProgress());
-                invoker.setYawF(packet.getFallingAttackYaw());
+                invoker.fallingattack$startFallingAttack();
+                invoker.fallingattack$setFallingAttackYPos(packet.getFallingAttackYPos());
+                invoker.fallingattack$setFallingAttackProgress(packet.getProgress());
+                invoker.fallingattack$setYawF(packet.getFallingAttackYaw());
             }
         }
     }

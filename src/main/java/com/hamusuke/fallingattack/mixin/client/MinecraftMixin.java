@@ -32,15 +32,15 @@ public abstract class MinecraftMixin {
         PlayerInvoker invoker = (PlayerInvoker) this.player;
 
         if (invoker != null) {
-            if (this.options.keyShift.isDown() && !invoker.isUsingFallingAttack()) {
-                if (invoker.checkFallingAttack()) {
+            if (this.options.keyShift.isDown() && !invoker.fallingattack$isUsingFallingAttack()) {
+                if (invoker.fallingattack$checkFallingAttack()) {
                     this.options.keyShift.setDown(false);
-                    invoker.sendFallingAttackPacket(true);
+                    invoker.fallingattack$sendFallingAttackPacket(true);
                     cir.setReturnValue(false);
                     cir.cancel();
                 }
-            } else if (invoker.isUsingFallingAttack()) {
-                invoker.sendFallingAttackPacket(false);
+            } else if (invoker.fallingattack$isUsingFallingAttack()) {
+                invoker.fallingattack$sendFallingAttackPacket(false);
                 cir.setReturnValue(false);
                 cir.cancel();
             }
@@ -51,7 +51,7 @@ public abstract class MinecraftMixin {
     void continueAttack(boolean p_147115_1_, CallbackInfo ci) {
         PlayerInvoker invoker = (PlayerInvoker) this.player;
 
-        if (invoker != null && invoker.isUsingFallingAttack()) {
+        if (invoker != null && invoker.fallingattack$isUsingFallingAttack()) {
             ci.cancel();
         }
     }

@@ -29,13 +29,13 @@ public class FallingAttackC2SPacket implements Packet {
             PlayerInvoker invoker = (PlayerInvoker) ctx.get().getSender();
             if (invoker != null) {
                 if (this.start) {
-                    if (invoker.checkFallingAttack()) {
-                        invoker.startFallingAttack();
-                        invoker.sendFallingAttackPacket(true);
+                    if (invoker.fallingattack$checkFallingAttack()) {
+                        invoker.fallingattack$startFallingAttack();
+                        invoker.fallingattack$sendFallingAttackPacket(true);
                     }
                 } else {
-                    invoker.stopFallingAttack();
-                    invoker.sendFallingAttackPacket(false);
+                    invoker.fallingattack$stopFallingAttack();
+                    invoker.fallingattack$sendFallingAttackPacket(false);
                 }
             }
         });

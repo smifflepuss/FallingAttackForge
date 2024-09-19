@@ -8,7 +8,6 @@
     "ServerPlayerMixin"
   ],
   "client": [
-    "client.ClientPlayNetHandlerMixin",
     "client.ItemInHandLayerMixin",
     "client.LocalPlayerMixin",
     "client.MinecraftMixin",

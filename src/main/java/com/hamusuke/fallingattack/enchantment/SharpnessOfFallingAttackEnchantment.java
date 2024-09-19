@@ -12,8 +12,8 @@ public class SharpnessOfFallingAttackEnchantment extends Enchantment {
     }
 
     @Override
-    public boolean canEnchant(ItemStack p_44689_) {
-        return super.canEnchant(p_44689_) || Config.Common.USABLE_ITEMS.isUsable(p_44689_.getItem());
+    public boolean canEnchant(ItemStack stack) {
+        return super.canEnchant(stack) || Config.Common.USABLE_ITEMS.isUsable(stack.getItem());
     }
 
     public int getMaxLevel() {

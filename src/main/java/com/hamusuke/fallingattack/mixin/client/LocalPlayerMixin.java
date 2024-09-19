@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 import javax.annotation.Nonnull;
 
@@ -27,40 +28,41 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
     @Final
     protected Minecraft minecraft;
 
+    @Unique
     @Nonnull
-    protected CameraType camTypeWhenAttack = CameraType.FIRST_PERSON;
+    protected CameraType fallingattack$camTypeWhenAttack = CameraType.FIRST_PERSON;
 
     LocalPlayerMixin(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
     }
 
-    public void sendFallingAttackPacket(boolean start) {
+    public void fallingattack$sendFallingAttackPacket(boolean start) {
         NetworkManager.sendToServer(new FallingAttackC2SPacket(start));
     }
 
-    public void startFallingAttack() {
-        super.startFallingAttack();
+    public void fallingattack$startFallingAttack() {
+        super.fallingattack$startFallingAttack();
 
         this.minecraft.getSoundManager().play(new FallingAttackSoundInstance((LocalPlayer) (Object) this));
         if (Config.Client.THIRD_PERSON.get()) {
-            this.camTypeWhenAttack = this.minecraft.options.getCameraType();
+            this.fallingattack$camTypeWhenAttack = this.minecraft.options.getCameraType();
             this.minecraft.options.setCameraType(CameraType.THIRD_PERSON_BACK);
         }
     }
 
-    public void stopFallingAttack() {
-        super.stopFallingAttack();
+    public void fallingattack$stopFallingAttack() {
+        super.fallingattack$stopFallingAttack();
 
         if (Config.Client.THIRD_PERSON.get()) {
             CameraType cameraType = this.minecraft.options.getCameraType();
-            this.minecraft.options.setCameraType(this.camTypeWhenAttack);
+            this.minecraft.options.setCameraType(this.fallingattack$camTypeWhenAttack);
             if (cameraType.isFirstPerson() != this.minecraft.options.getCameraType().isFirstPerson()) {
                 this.minecraft.gameRenderer.checkEntityPostEffect(this.minecraft.options.getCameraType().isFirstPerson() ? this.minecraft.getCameraEntity() : null);
             }
         }
     }
 
-    public void sendSynchronizeFallingAttackPacket() {
+    public void fallingattack$sendSynchronizeFallingAttackPacket() {
         NetworkManager.sendToServer(new SyncFallingAttackC2SPacket());
     }
 }
