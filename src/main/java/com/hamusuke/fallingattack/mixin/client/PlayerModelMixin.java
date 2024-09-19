@@ -23,23 +23,23 @@ public abstract class PlayerModelMixin<T extends LivingEntity> extends HumanoidM
     }
 
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/HumanoidModel;setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", shift = At.Shift.AFTER))
-    void setupAnim(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci) {
+    void setupAnim(T livingEntity, float animStep, float animSpeed, float bob, float netHeadYRot, float xRot, CallbackInfo ci) {
         if (livingEntity instanceof AbstractClientPlayer abstractClientPlayer) {
             PlayerInvoker invoker = (PlayerInvoker) abstractClientPlayer;
-            if (invoker.isUsingFallingAttack()) {
-                if (invoker.getFallingAttackProgress() < PlayerInvoker.FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
-                    if (Float.isNaN(invoker.getYawF())) {
-                        invoker.setYawF(abstractClientPlayer.yBodyRot);
+            if (invoker.fallingattack$isUsingFallingAttack()) {
+                if (invoker.fallingattack$getFallingAttackProgress() < PlayerInvoker.FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
+                    if (Float.isNaN(invoker.fallingattack$getYawF())) {
+                        invoker.fallingattack$setYawF(abstractClientPlayer.yBodyRot);
                     }
 
-                    abstractClientPlayer.yBodyRot = invoker.getYawF() + 36.0F * invoker.getFallingAttackProgress() * (livingEntity.getMainArm() == HumanoidArm.LEFT ? 1 : -1);
+                    abstractClientPlayer.yBodyRot = invoker.fallingattack$getYawF() + 36.0F * invoker.fallingattack$getFallingAttackProgress() * (livingEntity.getMainArm() == HumanoidArm.LEFT ? 1 : -1);
                     abstractClientPlayer.yHeadRot = abstractClientPlayer.yBodyRot;
                 } else {
                     this.getArm(livingEntity.getMainArm()).xRot = -85.0F * Mth.DEG_TO_RAD;
                     this.getArm(livingEntity.getMainArm().getOpposite()).xRot = 80.0F * Mth.DEG_TO_RAD;
                 }
-            } else if (!Float.isNaN(invoker.getYawF())) {
-                invoker.setYawF(Float.NaN);
+            } else if (!Float.isNaN(invoker.fallingattack$getYawF())) {
+                invoker.fallingattack$setYawF(Float.NaN);
             }
         }
     }
