@@ -4,44 +4,44 @@ public interface PlayerInvoker {
     int FIRST_FALLING_ATTACK_PROGRESS_TICKS = 10;
     int FALLING_ATTACK_END_TICKS = FIRST_FALLING_ATTACK_PROGRESS_TICKS + 6;
 
-    default boolean checkFallingAttack() {
+    default boolean fallingattack$checkFallingAttack() {
         return false;
     }
 
-    default void startFallingAttack() {
+    default void fallingattack$startFallingAttack() {
     }
 
-    default void stopFallingAttack() {
+    default void fallingattack$stopFallingAttack() {
     }
 
-    default int getFallingAttackProgress() {
+    default int fallingattack$getFallingAttackProgress() {
         return 0;
     }
 
-    default void setFallingAttackProgress(int progress) {
+    default void fallingattack$setFallingAttackProgress(int progress) {
     }
 
-    default float getFallingAttackYPos() {
+    default float fallingattack$getFallingAttackYPos() {
         return 0.0F;
     }
 
-    default void setFallingAttackYPos(float yPos) {
+    default void fallingattack$setFallingAttackYPos(float yPos) {
     }
 
-    default boolean isUsingFallingAttack() {
+    default boolean fallingattack$isUsingFallingAttack() {
         return false;
     }
 
-    default void sendFallingAttackPacket(boolean start) {
+    default void fallingattack$sendFallingAttackPacket(boolean start) {
     }
 
-    default void sendSynchronizeFallingAttackPacket() {
+    default void fallingattack$sendSynchronizeFallingAttackPacket() {
     }
 
-    default float getYawF() {
+    default float fallingattack$getYawF() {
         return 0.0F;
     }
 
-    default void setYawF(float yaw) {
+    default void fallingattack$setYawF(float yaw) {
     }
 }

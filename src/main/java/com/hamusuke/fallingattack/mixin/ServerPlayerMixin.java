@@ -28,29 +28,29 @@ public abstract class ServerPlayerMixin extends PlayerMixin {
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
     public void addAdditionalSaveData(CompoundTag nbt, CallbackInfo ci) {
-        nbt.putBoolean("UsingFallingAttack", this.fallingAttack);
-        nbt.putFloat("StartFallingAttackYPos", this.yPosWhenStartFallingAttack);
-        nbt.putInt("FallingAttackProgress", this.fallingAttackProgress);
-        nbt.putFloat("StartFallingAttackYaw", this.storeYaw);
+        nbt.putBoolean("UsingFallingAttack", this.fallingattack$fallingAttack);
+        nbt.putFloat("StartFallingAttackYPos", this.fallingattack$yPosWhenStartFallingAttack);
+        nbt.putInt("FallingAttackProgress", this.fallingattack$fallingAttackProgress);
+        nbt.putFloat("StartFallingAttackYaw", this.fallingattack$storeYaw);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     public void readAdditionalSaveData(CompoundTag nbt, CallbackInfo ci) {
-        this.fallingAttack = nbt.getBoolean("UsingFallingAttack");
-        this.yPosWhenStartFallingAttack = nbt.getFloat("StartFallingAttackYPos");
-        this.fallingAttackProgress = nbt.getInt("FallingAttackProgress");
-        this.storeYaw = nbt.getFloat("StartFallingAttackYaw");
+        this.fallingattack$fallingAttack = nbt.getBoolean("UsingFallingAttack");
+        this.fallingattack$yPosWhenStartFallingAttack = nbt.getFloat("StartFallingAttackYPos");
+        this.fallingattack$fallingAttackProgress = nbt.getInt("FallingAttackProgress");
+        this.fallingattack$storeYaw = nbt.getFloat("StartFallingAttackYaw");
     }
 
-    public void sendFallingAttackPacket(boolean start) {
+    public void fallingattack$sendFallingAttackPacket(boolean start) {
         this.server.getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
             NetworkManager.sendToClient(new FallingAttackS2CPacket(this.getId(), start), serverPlayerEntity);
         });
     }
 
-    public void sendSynchronizeFallingAttackPacket() {
+    public void fallingattack$sendSynchronizeFallingAttackPacket() {
         this.server.getPlayerList().getPlayers().forEach(serverPlayerEntity -> {
-            NetworkManager.sendToClient(new SyncFallingAttackS2CPacket(this.getId(), this.fallingAttack, this.yPosWhenStartFallingAttack, this.fallingAttackProgress, this.storeYaw), serverPlayerEntity);
+            NetworkManager.sendToClient(new SyncFallingAttackS2CPacket(this.getId(), this.fallingattack$fallingAttack, this.fallingattack$yPosWhenStartFallingAttack, this.fallingattack$fallingAttackProgress, this.fallingattack$storeYaw), serverPlayerEntity);
         });
     }
 }
