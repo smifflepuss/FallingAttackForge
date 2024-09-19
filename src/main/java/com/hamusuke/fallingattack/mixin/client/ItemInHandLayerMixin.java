@@ -30,21 +30,21 @@ public abstract class ItemInHandLayerMixin<T extends LivingEntity, M extends Ent
     @Final
     private ItemInHandRenderer itemInHandRenderer;
 
-    ItemInHandLayerMixin(RenderLayerParent<T, M> p_117346_) {
-        super(p_117346_);
+    ItemInHandLayerMixin(RenderLayerParent<T, M> parent) {
+        super(parent);
     }
 
     @Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
-    void renderArmWithItem(LivingEntity p_117185_, ItemStack p_117186_, ItemDisplayContext p_117187_, HumanoidArm p_117188_, PoseStack p_117189_, MultiBufferSource p_117190_, int p_117191_, CallbackInfo ci) {
-        if (!p_117186_.isEmpty() && p_117185_ instanceof PlayerInvoker invoker && invoker.getFallingAttackProgress() >= PlayerInvoker.FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
-            p_117189_.pushPose();
-            boolean bl = p_117188_ == HumanoidArm.LEFT;
-            this.getParentModel().translateToHand(p_117188_, p_117189_);
-            p_117189_.mulPose(Axis.XP.rotationDegrees(90.0F));
-            p_117189_.mulPose(Axis.YP.rotationDegrees(180.0F));
-            p_117189_.translate((float) (bl ? -1 : 1) / 16.0F, 0.125D, 0.4D);
-            this.itemInHandRenderer.renderItem(p_117185_, p_117186_, p_117187_, bl, p_117189_, p_117190_, p_117191_);
-            p_117189_.popPose();
+    void renderArmWithItem(LivingEntity entity, ItemStack stack, ItemDisplayContext itemDisplayContext, HumanoidArm humanoidArm, PoseStack poseStack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
+        if (!stack.isEmpty() && entity instanceof PlayerInvoker invoker && invoker.fallingattack$getFallingAttackProgress() >= PlayerInvoker.FIRST_FALLING_ATTACK_PROGRESS_TICKS) {
+            poseStack.pushPose();
+            boolean left = humanoidArm == HumanoidArm.LEFT;
+            this.getParentModel().translateToHand(humanoidArm, poseStack);
+            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+            poseStack.translate((float) (left ? -1 : 1) / 16.0F, 0.125D, 0.4D);
+            this.itemInHandRenderer.renderItem(entity, stack, itemDisplayContext, left, poseStack, bufferSource, light);
+            poseStack.popPose();
             ci.cancel();
         }
     }
